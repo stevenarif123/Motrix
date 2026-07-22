@@ -20,11 +20,19 @@ export default defineConfig({
     }
   },
   renderer: {
+    root: resolve(__dirname, 'src/renderer'),
+    build: {
+      rollupOptions: {
+        input: resolve(__dirname, 'src/renderer/index.html')
+      }
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src/renderer'),
-        '@shared': resolve(__dirname, 'src/shared')
-      }
+        '@shared': resolve(__dirname, 'src/shared'),
+        'vue$': 'vue/dist/vue.esm.js'
+      },
+      extensions: ['.js', '.vue', '.json', '.scss']
     },
     plugins: [vue()]
   }
