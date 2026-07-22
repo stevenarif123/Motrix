@@ -39,8 +39,8 @@
           </td>
           <td class="col-size">
             <div class="size-cell">
-              <span class="completed">{{ task.completedLength | bytesToSize(1) }}</span>
-              <span class="total" v-if="task.totalLength > 0"> / {{ task.totalLength | bytesToSize(1) }}</span>
+              <span class="completed">{{ Number(task.completedLength || 0) | bytesToSize(1) }}</span>
+              <span class="total" v-if="Number(task.totalLength) > 0"> / {{ Number(task.totalLength) | bytesToSize(1) }}</span>
             </div>
           </td>
           <td class="col-progress">
@@ -61,22 +61,22 @@
             </span>
           </td>
           <td class="col-speed">
-            <div class="speed-cell" v-if="task.status === 'active'">
-              <span class="down-speed">↓ {{ task.downloadSpeed | bytesToSize }}/s</span>
-              <span class="up-speed" v-if="checkIsBT(task) && task.uploadSpeed > 0">↑ {{ task.uploadSpeed | bytesToSize }}/s</span>
+            <div class="speed-cell" v-if="task.status === 'active' || Number(task.downloadSpeed) > 0">
+              <span class="down-speed">↓ {{ Number(task.downloadSpeed || 0) | bytesToSize }}/s</span>
+              <span class="up-speed" v-if="checkIsBT(task) && Number(task.uploadSpeed) > 0">↑ {{ Number(task.uploadSpeed || 0) | bytesToSize }}/s</span>
             </div>
             <span v-else class="text-muted">-</span>
           </td>
           <td class="col-eta">
-            <span v-if="task.status === 'active' && getRemainingTime(task) > 0">
+            <span v-if="(task.status === 'active' || Number(task.downloadSpeed) > 0) && getRemainingTime(task) > 0">
               {{ getRemainingTime(task) | timeFormat }}
             </span>
             <span v-else-if="task.status === 'complete'" class="text-success">Done</span>
             <span v-else class="text-muted">-</span>
           </td>
           <td class="col-connections">
-            <span class="conn-badge" v-if="task.status === 'active'">
-              {{ task.connections || 0 }} conn
+            <span class="conn-badge" v-if="task.status === 'active' || Number(task.connections) > 0">
+              {{ Number(task.connections || 0) }} conn
             </span>
             <span v-else class="text-muted">-</span>
           </td>

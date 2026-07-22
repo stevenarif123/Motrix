@@ -70,7 +70,7 @@
         type: String,
         default: 'LIST',
         validator: function (value) {
-          return ['LIST', 'DETAIL'].indexOf(value) !== -1
+          return ['LIST', 'DETAIL', 'GRID'].indexOf(value) !== -1
         }
       },
       task: {
@@ -105,6 +105,7 @@
 
         switch (mode) {
         case 'LIST':
+        case 'GRID':
           result.push('LINK', 'INFO')
           break
         case 'DETAIL':
