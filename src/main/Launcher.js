@@ -36,7 +36,9 @@ export default class Launcher extends EventEmitter {
       app.quit()
     } else {
       app.on('second-instance', (event, argv, workingDirectory) => {
-        global.application.showPage('index')
+        if (global.application) {
+          global.application.showPage('index')
+        }
         if (!is.macOS() && argv.length > 1) {
           this.handleAppLaunchArgv(argv)
         }
