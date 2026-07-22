@@ -65,6 +65,16 @@
         <mo-icon name="purge" width="14" height="14" />
       </i>
     </el-tooltip>
+    <el-tooltip
+      class="item"
+      effect="dark"
+      placement="bottom"
+      :content="viewMode === 'table' ? 'Switch to Card View' : 'Switch to Table View'"
+    >
+      <i class="task-action" @click="toggleViewMode">
+        <mo-icon :name="viewMode === 'table' ? 'grid' : 'list'" width="14" height="14" />
+      </i>
+    </el-tooltip>
   </div>
 </template>
 
@@ -96,6 +106,9 @@
       ...mapState('task', {
         currentList: state => state.currentList,
         selectedGidListCount: state => state.selectedGidList.length
+      }),
+      ...mapState('preference', {
+        viewMode: state => state.config.viewMode || 'table'
       })
     },
     filters: {
@@ -103,6 +116,10 @@
       timeFormat
     },
     methods: {
+      toggleViewMode () {
+        const nextMode = this.viewMode === 'table' ? 'card' : 'table'
+        this.$store.dispatch('preference/save', { viewMode: nextMode })
+      },
       refreshSpin () {
         this.t && clearTimeout(this.t)
 

@@ -1,24 +1,27 @@
 <template>
-  <mo-drag-select
-    class="task-list"
-    v-if="taskList.length > 0"
-    attribute="attr"
-    @change="handleDragSelectChange"
-  >
-    <div
-      v-for="item in taskList"
-      :key="item.gid"
-      :attr="item.gid"
-      :class="getItemClass(item)"
+  <div class="task-list-container">
+    <mo-task-table v-if="viewMode === 'table' && taskList.length > 0" />
+    <mo-drag-select
+      class="task-list"
+      v-else-if="taskList.length > 0"
+      attribute="attr"
+      @change="handleDragSelectChange"
     >
-      <mo-task-item
-        :task="item"
-      />
-    </div>
-  </mo-drag-select>
-  <div class="no-task" v-else>
-    <div class="no-task-inner">
-      {{ $t('task.no-task') }}
+      <div
+        v-for="item in taskList"
+        :key="item.gid"
+        :attr="item.gid"
+        :class="getItemClass(item)"
+      >
+        <mo-task-item
+          :task="item"
+        />
+      </div>
+    </mo-drag-select>
+    <div class="no-task" v-else>
+      <div class="no-task-inner">
+        {{ $t('task.no-task') }}
+      </div>
     </div>
   </div>
 </template>
@@ -28,12 +31,14 @@
   import { cloneDeep } from 'lodash'
   import DragSelect from '@/components/DragSelect/Index'
   import TaskItem from './TaskItem'
+  import TaskTable from './TaskTable'
 
   export default {
     name: 'mo-task-list',
     components: {
       [DragSelect.name]: DragSelect,
-      [TaskItem.name]: TaskItem
+      [TaskItem.name]: TaskItem,
+      [TaskTable.name]: TaskTable
     },
     data () {
       const selectedList = cloneDeep(this.$store.state.task.selectedList) || []
@@ -45,6 +50,9 @@
       ...mapState('task', {
         taskList: state => state.taskList,
         selectedGidList: state => state.selectedGidList
+      }),
+      ...mapState('preference', {
+        viewMode: state => state.config.viewMode || 'table'
       })
     },
     methods: {

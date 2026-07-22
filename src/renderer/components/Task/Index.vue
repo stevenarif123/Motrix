@@ -28,6 +28,29 @@
       <el-main class="panel-content">
         <mo-task-list />
       </el-main>
+      <el-footer class="panel-footer" height="32">
+        <div class="footer-stats">
+          <span class="stat-item">
+            <mo-icon name="arrow-down" width="10" height="12" />
+            <span class="stat-label">Down:</span>
+            <span class="stat-value">{{ globalDownloadSpeed | bytesToSize }}/s</span>
+          </span>
+          <span class="stat-item">
+            <mo-icon name="arrow-up" width="10" height="12" />
+            <span class="stat-label">Up:</span>
+            <span class="stat-value">{{ globalUploadSpeed | bytesToSize }}/s</span>
+          </span>
+          <span class="stat-divider">|</span>
+          <span class="stat-item">
+            <span class="stat-label">Active:</span>
+            <span class="stat-value">{{ activeTaskCount }}</span>
+          </span>
+          <span class="stat-item">
+            <span class="stat-label">Total:</span>
+            <span class="stat-value">{{ totalTaskCount }}</span>
+          </span>
+        </div>
+      </el-footer>
     </el-container>
   </el-container>
 </template>
@@ -97,7 +120,22 @@
       title () {
         const subnav = this.subnavs.find((item) => item.key === this.status)
         return subnav.title
+      },
+      globalDownloadSpeed () {
+        return this.taskList.reduce((acc, t) => acc + Number(t.downloadSpeed || 0), 0)
+      },
+      globalUploadSpeed () {
+        return this.taskList.reduce((acc, t) => acc + Number(t.uploadSpeed || 0), 0)
+      },
+      activeTaskCount () {
+        return this.taskList.filter(t => t.status === 'active').length
+      },
+      totalTaskCount () {
+        return this.taskList.length
       }
+    },
+    filters: {
+      bytesToSize
     },
     watch: {
       status: 'onStatusChange'
@@ -409,3 +447,38 @@
     }
   }
 </script>
+
+<style lang="scss">
+.panel-footer {
+  padding: 0 16px;
+  background: #f5f7fa;
+  border-top: 1px solid #e4e7ed;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+.footer-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: #606266;
+  font-family: 'JetBrains Mono', monospace;
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .stat-label {
+    color: #909399;
+  }
+  .stat-value {
+    color: #303133;
+    font-weight: 600;
+  }
+  .stat-divider {
+    color: #dcdfe6;
+  }
+}
+</style>
