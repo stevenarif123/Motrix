@@ -149,6 +149,16 @@
 
         this.fetchTaskItem({ gid })
           .then((task) => {
+            // Fix: Don't fire completion notification for magnet metadata-only phase.
+            // When a magnet link completes its metadata download, aria2 fires btComplete
+            // before the actual content download starts. We detect this by checking if
+            // followedBy is set (meaning this was the metadata torrent, not real content)
+            // or if files are all zero-length.
+            const isMetadataOnly = task.followedBy && task.followedBy.length > 0
+            if (isMetadataOnly) {
+              console.info('[Motrix] Skipping completion notification for magnet metadata phase:', gid)
+              return
+            }
             this.handleDownloadComplete(task, true)
           })
       },

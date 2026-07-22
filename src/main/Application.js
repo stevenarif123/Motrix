@@ -305,6 +305,18 @@ export default class Application extends EventEmitter {
         : {}
       this.configManager.setSystemConfig(system)
       this.engineClient.call('changeGlobalOption', system)
+
+      // Fix: ensure localhost RPC traffic is never routed through proxy
+      // This prevents 'Failed to fetch' errors when VPN/proxy is active
+      const { session } = require('electron')
+      if (enable && server) {
+        session.defaultSession.setProxy({
+          proxyRules: server,
+          proxyBypassRules: `localhost;127.0.0.1;${bypass || ''}`
+        })
+      } else {
+        session.defaultSession.setProxy({ proxyRules: '' })
+      }
     })
   }
 
@@ -929,6 +941,21 @@ export default class Application extends EventEmitter {
 
       this.adjustMenu()
     })
+
+    // Ensure localhost is always bypassed from proxy on startup
+    const { session } = require('electron')
+    const initProxy = this.configManager.getUserConfig('proxy', { enable: false })
+    if (initProxy && initProxy.enable && initProxy.server) {
+      session.defaultSession.setProxy({
+        proxyRules: initProxy.server,
+        proxyBypassRules: `localhost;127.0.0.1;${initProxy.bypass || ''}`
+      })
+    } else {
+      // Always ensure localhost bypasses any system proxy
+      session.defaultSession.setProxy({
+        proxyBypassRules: 'localhost;127.0.0.1'
+      })
+    }
 
     this.configManager.userConfig.onDidAnyChange(() => this.handleConfigChange('user'))
     this.configManager.systemConfig.onDidAnyChange(() => this.handleConfigChange('system'))
