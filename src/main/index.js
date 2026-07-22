@@ -19,6 +19,7 @@ if (process.env.NODE_ENV !== 'development') {
  * Fix Windows notification func
  * appId defined in .electron-vue/webpack.main.config.js
  */
+const appId = 'app.motrix.native'
 if (is.windows()) {
   app.setAppUserModelId(appId)
 }
