@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "node-fetch": "^2.6.1",
+    "write-file-atomic": "^8.0.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {
