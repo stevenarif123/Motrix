@@ -137,12 +137,11 @@ const actions = {
 
         const { numActive } = stat
         if (numActive > 0) {
-          const interval = BASE_INTERVAL - PER_INTERVAL * numActive
-          dispatch('updateInterval', interval)
+          dispatch('updateInterval', 1000)
         } else {
           // fix downloadSpeed when numActive = 0
           stat.downloadSpeed = 0
-          dispatch('increaseInterval')
+          dispatch('updateInterval', 2000)
         }
         commit('UPDATE_GLOBAL_STAT', stat)
       })

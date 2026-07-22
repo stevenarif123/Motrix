@@ -23,6 +23,7 @@
           :class="{ selected: selectedGidList.includes(task.gid) }"
           @click="handleRowClick(task, $event)"
           @dblclick="onDbClick(task)"
+          @contextmenu.prevent="onContextMenu(task, $event)"
         >
           <td class="col-select" @click.stop>
             <input
@@ -90,7 +91,9 @@
 </template>
 
 <script>
+  import { Menu, getCurrentWindow } from '@electron/remote'
   import { mapState } from 'vuex'
+  import { commands } from '@/components/CommandManager/instance'
   import { bytesToSize, checkTaskIsBT, checkTaskIsSeeder, timeFormat, timeRemaining, getTaskName } from '@shared/utils'
   import { TASK_STATUS } from '@shared/constants'
   import { openItem, getTaskFullPath } from '@/utils/native'
@@ -195,6 +198,71 @@
           const allGids = this.taskList.map(t => t.gid)
           this.$store.dispatch('task/selectTasks', allGids)
         }
+      },
+      onContextMenu (task, event) {
+        this.$store.dispatch('task/selectTasks', [task.gid])
+        const taskName = this.getTaskFullName(task)
+        const isComplete = task.status === TASK_STATUS.COMPLETE
+        const isActive = task.status === TASK_STATUS.ACTIVE
+        const isPaused = task.status === TASK_STATUS.PAUSED || task.status === TASK_STATUS.WAITING
+
+        const template = []
+
+        if (isActive) {
+          template.push({
+            label: this.$t('task.pause-task') || 'Pause',
+            click: () => {
+              commands.emit('pause-task', { task, taskName })
+            }
+          })
+        } else if (isPaused) {
+          template.push({
+            label: this.$t('task.resume-task') || 'Resume',
+            click: () => {
+              commands.emit('resume-task', { task, taskName })
+            }
+          })
+        }
+
+        if (isComplete) {
+          template.push({
+            label: this.$t('task.open-file') || 'Open File',
+            click: () => {
+              this.openTask(task)
+            }
+          })
+        }
+
+        template.push({
+          label: this.$t('task.open-folder') || 'Open Folder',
+          click: () => {
+            const path = getTaskFullPath(task)
+            commands.emit('reveal-in-folder', { path })
+          }
+        })
+
+        template.push({
+          label: this.$t('task.copy-link') || 'Copy Link',
+          click: () => {
+            commands.emit('copy-task-link', { task })
+          }
+        })
+
+        template.push({ type: 'separator' })
+
+        template.push({
+          label: this.$t('task.delete-task') || 'Delete',
+          click: () => {
+            if (isComplete) {
+              commands.emit('delete-task-record', { task, taskName, deleteWithFiles: false })
+            } else {
+              commands.emit('delete-task', { task, taskName, deleteWithFiles: false })
+            }
+          }
+        })
+
+        const menu = Menu.buildFromTemplate(template)
+        menu.popup({ window: getCurrentWindow() })
       },
       onDbClick (task) {
         if (task.status === TASK_STATUS.COMPLETE) {

@@ -1,5 +1,5 @@
 <template>
-  <ul :key="task.gid" class="task-item-actions" v-on:dblclick.stop="() => null">
+  <ul :key="task.gid" class="task-item-actions" :class="{ 'task-actions-grid': mode === 'GRID' }" v-on:dblclick.stop="() => null">
     <li v-for="action in taskActions" :key="action" class="task-item-action">
       <i v-if="action ==='PAUSE'" @click.stop="onPauseClick">
         <mo-icon name="task-pause-line" width="14" height="14" />
@@ -219,6 +219,26 @@
     cursor: pointer;
     i {
       display: inline-block;
+    }
+  }
+}
+
+.task-actions-grid {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  height: auto !important;
+  width: auto !important;
+  direction: ltr !important;
+
+  .task-item-action {
+    padding: 2px 4px !important;
+    margin: 0 2px !important;
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+      color: #409eff;
     }
   }
 }
