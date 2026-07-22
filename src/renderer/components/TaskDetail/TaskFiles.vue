@@ -1,11 +1,20 @@
 <template>
-  <div class="mo-task-files" v-if="files">
+  <div class="mo-task-files" v-if="files" v-loading="loading">
+    <div class="mo-task-files-warning" v-if="isLimited">
+      <el-alert
+        :title="`Showing first ${MAX_DISPLAY_FILES} of ${files.length} files. Unchecking visible files works, but checking all visible files will download the entire torrent.`"
+        type="warning"
+        show-icon
+        :closable="false"
+        style="margin-bottom: 8px;"
+      />
+    </div>
     <div class="mo-table-wrapper">
       <el-table
         stripe
         ref="torrentTable"
         :height="height"
-        :data="files"
+        :data="displayFiles"
         tooltip-effect="dark"
         style="width: 100%"
         @row-dblclick="handleRowDbClick"
@@ -129,7 +138,12 @@
     },
     data () {
       return {
-        selectedFiles: []
+        selectedFiles: [],
+        displayFiles: [],
+        loading: false,
+        isLimited: false,
+        MAX_DISPLAY_FILES: 1000,
+        pendingToggleAll: false
       }
     },
     computed: {
@@ -143,11 +157,11 @@
         return bytesToSize(result)
       },
       selectedFileIndex () {
-        const { files, selectedFiles } = this
+        const { files, displayFiles, selectedFiles } = this
         if (files.length === 0 || selectedFiles.length === 0) {
           return NONE_SELECTED_FILES
         }
-        if (files.length === selectedFiles.length) {
+        if (files.length === selectedFiles.length || (this.isLimited && selectedFiles.length === displayFiles.length)) {
           return SELECTED_ALL_FILES
         }
         const indexArr = this.selectedFiles.map((item) => item.idx)
@@ -159,17 +173,61 @@
       selectedFileIndex () {
         const { selectedFileIndex } = this
         this.$emit('selection-change', selectedFileIndex)
+      },
+      files: {
+        immediate: true,
+        handler(val) {
+          this.processFiles(val)
+        }
       }
     },
     methods: {
       calcProgress,
+      processFiles(val) {
+        if (!val || val.length === 0) {
+          this.displayFiles = []
+          this.isLimited = false
+          return
+        }
+        
+        if (val.length > 500) {
+          this.loading = true
+          setTimeout(() => {
+            if (val.length > this.MAX_DISPLAY_FILES) {
+              this.displayFiles = Object.freeze(val.slice(0, this.MAX_DISPLAY_FILES))
+              this.isLimited = true
+            } else {
+              this.displayFiles = Object.freeze(val.slice(0))
+              this.isLimited = false
+            }
+            this.loading = false
+            if (this.pendingToggleAll) {
+              this.$nextTick(() => {
+                this.toggleAllSelection()
+                this.pendingToggleAll = false
+              })
+            }
+          }, 100)
+        } else {
+          this.displayFiles = val
+          this.isLimited = false
+        }
+      },
       toggleAllSelection () {
+        if (this.loading) {
+          this.pendingToggleAll = true
+          return
+        }
         if (!this.$refs.torrentTable) {
           return
         }
         this.$refs.torrentTable.toggleAllSelection()
       },
       clearSelection () {
+        if (this.loading) {
+          this.pendingToggleAll = false
+          return
+        }
         if (!this.$refs.torrentTable) {
           return
         }
@@ -186,19 +244,19 @@
         }
       },
       toggleVideoSelection () {
-        const filtered = filterVideoFiles(this.files)
+        const filtered = filterVideoFiles(this.displayFiles)
         this.toggleSelection(filtered)
       },
       toggleAudioSelection () {
-        const filtered = filterAudioFiles(this.files)
+        const filtered = filterAudioFiles(this.displayFiles)
         this.toggleSelection(filtered)
       },
       toggleImageSelection () {
-        const filtered = filterImageFiles(this.files)
+        const filtered = filterImageFiles(this.displayFiles)
         this.toggleSelection(filtered)
       },
       toggleDocumentSelection () {
-        const filtered = filterDocumentFiles(this.files)
+        const filtered = filterDocumentFiles(this.displayFiles)
         this.toggleSelection(filtered)
       },
       handleRowDbClick (row, column, event) {
