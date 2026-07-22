@@ -9,6 +9,16 @@ import {
 } from '../utils/menu'
 import { getI18n } from '../ui/Locale'
 
+import win32Menu from '../menus/win32.json'
+import darwinMenu from '../menus/darwin.json'
+import linuxMenu from '../menus/linux.json'
+
+const menuMap = {
+  win32: win32Menu,
+  darwin: darwinMenu,
+  linux: linuxMenu
+}
+
 export default class MenuManager extends EventEmitter {
   constructor (options) {
     super()
@@ -24,7 +34,7 @@ export default class MenuManager extends EventEmitter {
   }
 
   load () {
-    const template = require(`../menus/${process.platform}.json`)
+    const template = menuMap[process.platform] || win32Menu
     this.template = template.menu
   }
 

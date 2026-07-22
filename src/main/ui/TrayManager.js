@@ -14,6 +14,8 @@ import {
 } from '../utils/menu'
 import { convertArrayBufferToBuffer } from '../utils/index'
 
+import trayMenu from '../menus/tray.json'
+
 let tray = null
 const { platform } = process
 
@@ -59,7 +61,7 @@ export default class TrayManager extends EventEmitter {
   }
 
   loadTemplate () {
-    this.template = require('../menus/tray.json')
+    this.template = trayMenu
   }
 
   loadImages () {
