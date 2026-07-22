@@ -1,6 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+import Main from '@/components/Main'
+import TaskIndex from '@/components/Task/Index'
+import PreferenceIndex from '@/components/Preference/Index'
+import PreferenceSubnav from '@/components/Subnav/PreferenceSubnav'
+import PreferenceBasic from '@/components/Preference/Basic'
+import PreferenceAdvanced from '@/components/Preference/Advanced'
+import PreferenceLab from '@/components/Preference/Lab'
+
 Vue.use(Router)
 
 export default new Router({
@@ -8,12 +16,12 @@ export default new Router({
     {
       path: '/',
       name: 'main',
-      component: require('@/components/Main').default,
+      component: Main,
       children: [
         {
           path: '/task',
           alias: '/',
-          component: require('@/components/Task/Index').default,
+          component: TaskIndex,
           props: {
             status: 'active'
           }
@@ -21,21 +29,21 @@ export default new Router({
         {
           path: '/task/:status',
           name: 'task',
-          component: require('@/components/Task/Index').default,
+          component: TaskIndex,
           props: true
         },
         {
           path: '/preference',
           name: 'preference',
-          component: require('@/components/Preference/Index').default,
+          component: PreferenceIndex,
           props: true,
           children: [
             {
               path: 'basic',
               alias: '',
               components: {
-                subnav: require('@/components/Subnav/PreferenceSubnav').default,
-                form: require('@/components/Preference/Basic').default
+                subnav: PreferenceSubnav,
+                form: PreferenceBasic
               },
               props: {
                 subnav: { current: 'basic' }
@@ -44,8 +52,8 @@ export default new Router({
             {
               path: 'advanced',
               components: {
-                subnav: require('@/components/Subnav/PreferenceSubnav').default,
-                form: require('@/components/Preference/Advanced').default
+                subnav: PreferenceSubnav,
+                form: PreferenceAdvanced
               },
               props: {
                 subnav: { current: 'advanced' }
@@ -54,8 +62,8 @@ export default new Router({
             {
               path: 'lab',
               components: {
-                subnav: require('@/components/Subnav/PreferenceSubnav').default,
-                form: require('@/components/Preference/Lab').default
+                subnav: PreferenceSubnav,
+                form: PreferenceLab
               },
               props: {
                 subnav: { current: 'lab' }

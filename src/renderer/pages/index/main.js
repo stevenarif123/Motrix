@@ -53,7 +53,7 @@ function initTrayWorker () {
 
 function init (config) {
   if (is.renderer()) {
-    Vue.use(require('vue-electron'))
+    Vue.prototype.$electron = window.electron || (typeof require === 'function' ? require('electron') : {})
   }
 
   Vue.http = Vue.prototype.$http = axios
