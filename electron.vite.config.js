@@ -1,6 +1,7 @@
 import { resolve } from 'path'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import vue from '@vitejs/plugin-vue2'
+import rendererPlugin from 'vite-plugin-electron-renderer'
 
 export default defineConfig({
   main: {
@@ -77,6 +78,9 @@ export default defineConfig({
       },
       extensions: ['.js', '.vue', '.json', '.scss']
     },
-    plugins: [vue()]
+    plugins: [
+      vue(),
+      rendererPlugin()
+    ]
   }
 })
