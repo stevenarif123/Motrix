@@ -162,6 +162,12 @@ export default class ConfigManager {
     // Fix spawn ENAMETOOLONG on Windows
     const tracker = reduceTrackerString(this.systemConfig.get('bt-tracker'))
     this.setSystemConfig('bt-tracker', tracker)
+
+    // Override aria2 default User-Agent to avoid 403 Forbidden on file hosts
+    const currentUa = this.systemConfig.get('user-agent')
+    if (!currentUa || currentUa.includes('aria2/')) {
+      this.setSystemConfig('user-agent', CHROME_UA)
+    }
   }
 
   fixUserConfig () {
