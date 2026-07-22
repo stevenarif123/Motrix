@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" @dragover.prevent @drop.prevent="handleDrop">
     <mo-title-bar
       v-if="isRenderer"
       :showActions="showWindowActions"
@@ -74,6 +74,15 @@
         const { themeClass = '', i18nClass = '', directionClass = '' } = this
         const className = `${themeClass} ${i18nClass} ${directionClass}`
         document.documentElement.className = className
+      },
+      handleDrop (event) {
+        const files = event.dataTransfer.files
+        if (files && files.length > 0) {
+          const file = files[0]
+          if (file.name.endsWith('.torrent')) {
+            this.$electron.ipcRenderer.send('command', 'application:open-torrent-file', file.path)
+          }
+        }
       }
     },
     beforeMount () {

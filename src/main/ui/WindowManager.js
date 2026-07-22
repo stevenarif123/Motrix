@@ -119,6 +119,10 @@ export default class WindowManager extends EventEmitter {
       return { action: 'deny' }
     })
 
+    window.webContents.on('will-navigate', (event, url) => {
+      event.preventDefault()
+    })
+
     if (pageOptions.url) {
       window.loadURL(pageOptions.url)
     }

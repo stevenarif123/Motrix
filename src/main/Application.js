@@ -786,6 +786,10 @@ export default class Application extends EventEmitter {
   handleCommands () {
     this.on('application:save-preference', this.savePreference)
 
+    this.on('application:open-torrent-file', (filePath) => {
+      this.handleFile(filePath)
+    })
+
     this.on('application:update-tray', (tray) => {
       this.trayManager.updateTrayByImage(tray)
     })
