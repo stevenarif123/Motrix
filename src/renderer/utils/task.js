@@ -68,13 +68,16 @@ export const buildHeader = (form) => {
   return result
 }
 
+import { detectCategoryFromFileName, getCategoryFolderName } from '@shared/utils/category'
+
 export const buildOption = (type, form) => {
-  const {
+  let {
     allProxy,
     dir,
     out,
     selectFile,
-    split
+    split,
+    uris
   } = form
   const result = {}
 
@@ -83,7 +86,15 @@ export const buildOption = (type, form) => {
   }
 
   if (!isEmpty(dir)) {
-    result.dir = dir
+    let targetDir = dir
+    if (uris && typeof uris === 'string') {
+      const category = detectCategoryFromFileName(uris)
+      if (category !== 'other') {
+        const subFolder = getCategoryFolderName(category)
+        targetDir = `${dir}/${subFolder}`.replace(/\\/g, '/')
+      }
+    }
+    result.dir = targetDir
   }
 
   if (!isEmpty(out)) {
