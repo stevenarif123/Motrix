@@ -10,18 +10,15 @@ export default defineConfig({
     build: {
       rollupOptions: {
         external: [
-          '@motrix/nat-api',
-          '@motrix/multispinner',
-          '@bany/curl-to-json',
-          'bittorrent-peerid',
-          'parse-torrent',
+          'electron',
+          'write-file-atomic',
+          'ws',
           'electron-store',
           'electron-log',
           'electron-is',
           'electron-updater',
-          'axios',
-          'ws',
-          'write-file-atomic'
+          '@motrix/nat-api',
+          '@motrix/multispinner'
         ]
       },
       lib: {
