@@ -4,30 +4,48 @@ import vue from '@vitejs/plugin-vue2'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
+    plugins: [
+      externalizeDepsPlugin()
+    ],
+    build: {
+      rollupOptions: {
+        external: [
+          '@motrix/nat-api',
+          '@motrix/multispinner',
+          '@bany/curl-to-json',
+          'bittorrent-peerid',
+          'parse-torrent',
+          'electron-store',
+          'electron-log',
+          'electron-is',
+          'electron-updater',
+          'axios',
+          'ws',
+          'write-file-atomic'
+        ]
+      },
+      lib: {
+        entry: resolve(__dirname, 'src/main/index.js')
+      }
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src/main'),
         '@shared': resolve(__dirname, 'src/shared')
       }
-    },
-    build: {
-      lib: {
-        entry: resolve(__dirname, 'src/main/index.js')
-      }
     }
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
+    build: {
+      lib: {
+        entry: resolve(__dirname, 'src/preload/index.js')
+      }
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src/preload'),
         '@shared': resolve(__dirname, 'src/shared')
-      }
-    },
-    build: {
-      lib: {
-        entry: resolve(__dirname, 'src/preload/index.js')
       }
     }
   },
