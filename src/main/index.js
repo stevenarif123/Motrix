@@ -11,9 +11,9 @@ initialize()
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 
-if (process.env.NODE_ENV !== 'development') {
-  global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
-}
+global.__static = process.env.NODE_ENV === 'development'
+  ? require('path').resolve(process.cwd(), 'static').replace(/\\/g, '\\\\')
+  : require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 
 /**
  * Fix Windows notification func

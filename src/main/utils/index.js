@@ -59,8 +59,7 @@ export const getEngineArch = (platform, arch) => {
 
 export const getDevEnginePath = (platform, arch) => {
   const ah = getEngineArch(platform, arch)
-  const base = `../../../extra/${platform}/${ah}/engine`
-  const result = resolve(__dirname, base)
+  const result = resolve(process.cwd(), `extra/${platform}/${ah}/engine`)
   return result
 }
 

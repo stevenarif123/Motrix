@@ -4,6 +4,9 @@ import vue from '@vitejs/plugin-vue2'
 
 export default defineConfig({
   main: {
+    define: {
+      __static: 'global.__static'
+    },
     plugins: [
       externalizeDepsPlugin()
     ],
