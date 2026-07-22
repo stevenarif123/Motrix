@@ -70,3 +70,5 @@ export class Aria2 extends JSONRPCClient {
     path: '/jsonrpc'
   })
 }
+
+export default Aria2
