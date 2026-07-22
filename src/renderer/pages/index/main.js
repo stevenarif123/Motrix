@@ -15,6 +15,7 @@ import Msg from '@/components/Msg'
 import { commands } from '@/components/CommandManager/instance'
 import TrayWorker from '@/workers/tray.worker.js?worker'
 
+import './commands'
 import '@/components/Theme/Index.scss'
 
 const updateTray = is.renderer()
@@ -90,7 +91,6 @@ function init (config) {
   }).$mount('#app')
 
   global.app.commands = commands
-  require('./commands')
 
   global.app.trayWorker = initTrayWorker()
 
