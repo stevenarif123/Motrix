@@ -66,6 +66,7 @@
   import TaskList from '@/components/Task/TaskList'
   import SubnavSwitcher from '@/components/Subnav/SubnavSwitcher'
   import {
+    bytesToSize,
     getTaskUri,
     parseHeader
   } from '@shared/utils'
