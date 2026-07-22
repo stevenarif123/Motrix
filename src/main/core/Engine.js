@@ -99,7 +99,7 @@ export default class Engine {
     const sessionPath = getSessionPath()
     const sessionIsExist = existsSync(sessionPath)
 
-    let result = [`--conf-path=${confPath}`, `--save-session=${sessionPath}`]
+    let result = [`--conf-path=${confPath}`, `--save-session=${sessionPath}`, '--save-session-interval=30', '--force-save=true']
     if (sessionIsExist) {
       result = [...result, `--input-file=${sessionPath}`]
     }
