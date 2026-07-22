@@ -121,6 +121,10 @@
               dangerouslyUseHTMLString: true,
               message: `${message} ${link}`
             })
+
+            // Auto-remove failed task from aria2's result list so it won't
+            // be saved to session file and won't reappear on next launch.
+            this.$store.dispatch('task/removeTaskRecord', task)
           })
       },
       onDownloadComplete (event) {

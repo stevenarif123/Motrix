@@ -163,6 +163,10 @@ const actions = {
     }
 
     return api.removeTask({ gid })
+      .then(() => {
+        // Immediately remove from aria2's result list so it won't be saved to session
+        return api.removeTaskRecord({ gid }).catch(() => {})
+      })
       .finally(() => {
         dispatch('fetchList')
         dispatch('saveSession')
@@ -254,7 +258,10 @@ const actions = {
       return
     }
     return api.removeTaskRecord({ gid })
-      .finally(() => dispatch('fetchList'))
+      .finally(() => {
+        dispatch('fetchList')
+        dispatch('saveSession')
+      })
   },
   saveSession () {
     api.saveSession()

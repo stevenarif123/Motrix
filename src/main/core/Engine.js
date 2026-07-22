@@ -99,7 +99,9 @@ export default class Engine {
     const sessionPath = getSessionPath()
     const sessionIsExist = existsSync(sessionPath)
 
-    let result = [`--conf-path=${confPath}`, `--save-session=${sessionPath}`, '--save-session-interval=30', '--force-save=true', '--async-dns=false']
+    // Note: --force-save is intentionally omitted so that only active/paused/waiting
+    // downloads are saved to the session. Failed and removed tasks won't be restored on restart.
+    let result = [`--conf-path=${confPath}`, `--save-session=${sessionPath}`, '--save-session-interval=30', '--async-dns=false']
     if (sessionIsExist) {
       result = [...result, `--input-file=${sessionPath}`]
     }
