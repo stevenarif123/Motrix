@@ -49,12 +49,23 @@ export const initTaskForm = state => {
 }
 
 export const buildHeader = (form) => {
-  const { userAgent, referer, cookie, authorization } = form
+  let { userAgent, referer, cookie, authorization, uris } = form
   const result = []
 
   if (!isEmpty(userAgent)) {
     result.push(`User-Agent: ${userAgent}`)
   }
+
+  if (isEmpty(referer) && uris && typeof uris === 'string') {
+    try {
+      const firstUrl = uris.split('\n')[0].trim()
+      if (firstUrl.startsWith('http')) {
+        const urlObj = new URL(firstUrl)
+        referer = `${urlObj.protocol}//${urlObj.host}/`
+      }
+    } catch (e) {}
+  }
+
   if (!isEmpty(referer)) {
     result.push(`Referer: ${referer}`)
   }
