@@ -129,6 +129,13 @@ export default class WindowManager extends EventEmitter {
       }
     })
 
+    window.webContents.on('render-process-gone', (event, details) => {
+      if (details.reason !== 'clean-exit') {
+        logger.warn('[Motrix] render-process-gone', details)
+        window.webContents.reload()
+      }
+    })
+
     window.on('enter-full-screen', () => {
       this.emit('enter-full-screen', window)
     })

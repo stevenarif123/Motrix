@@ -12,6 +12,13 @@ import {
 } from './utils'
 import { EMPTY_STRING } from '@shared/constants'
 
+// Fix GPU crash on Windows 11 / older GPUs
+if (process.platform === 'win32') {
+  app.commandLine.appendSwitch('no-sandbox')
+  app.commandLine.appendSwitch('disable-gpu-sandbox')
+  app.commandLine.appendSwitch('disable-software-rasterizer')
+}
+
 export default class Launcher extends EventEmitter {
   constructor () {
     super()
@@ -158,6 +165,13 @@ export default class Launcher extends EventEmitter {
   }
 
   handelAppReady () {
+    app.on('child-process-gone', (event, details) => {
+      if (details.type === 'GPU' && details.reason !== 'clean-exit') {
+        logger.warn('[Motrix] GPU process crashed, attempting to disable GPU acceleration')
+        app.disableHardwareAcceleration()
+      }
+    })
+
     app.on('ready', () => {
       global.application = new Application()
 
