@@ -3,6 +3,18 @@
   <head>
     <meta charset="utf-8">
     <title>Motrix</title>
+    <script>
+      (function() {
+        if (typeof process !== 'undefined' && process.electronBinding) {
+          try {
+            const features = process.electronBinding('features');
+            if (features && typeof features.isDesktopCapturerEnabled !== 'function') {
+              features.isDesktopCapturerEnabled = function() { return true; };
+            }
+          } catch (e) {}
+        }
+      })();
+    </script>
     <style>
       .skeleton-aside {
         background-color: rgba(0, 0, 0, 0.8);
