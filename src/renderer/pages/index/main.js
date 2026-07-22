@@ -83,11 +83,10 @@ function init (config) {
 
   /* eslint-disable no-new */
   global.app = new Vue({
-    components: { App },
+    render: h => h(App),
     router,
     store,
-    i18n,
-    template: '<App/>'
+    i18n
   }).$mount('#app')
 
   global.app.commands = commands
