@@ -133,6 +133,8 @@ export default class Engine {
 
   restart () {
     this.stop()
-    this.start()
+    setTimeout(() => {
+      this.start()
+    }, 1000)
   }
 }

@@ -188,6 +188,18 @@ export default class Application extends EventEmitter {
       port,
       secret
     })
+
+    this.engineClient.on('engine-hung', () => {
+      if (this.windowManager && this.windowManager.willQuit) return // Don't restart if shutting down
+      logger.warn('[Motrix] engine hung event received, restarting engine...')
+      this.engine.restart()
+      
+      // Re-initialize client connection after engine restarts
+      setTimeout(() => {
+        this.engineClient.connect()
+        this.sendCommandToAll('application:show-toast', 'Connection restored')
+      }, 3000)
+    })
   }
 
   initAutoLaunchManager () {
@@ -206,7 +218,13 @@ export default class Application extends EventEmitter {
       runMode: this.configManager.getUserConfig('run-mode')
     })
 
+    this.trayAvailable = this.trayManager.isAvailable()
+
     this.watchTraySpeedometerEnabledChange()
+
+    if (!this.trayAvailable) {
+      return
+    }
 
     this.trayManager.on('mouse-down', ({ focused }) => {
       this.sendCommandToAll('application:update-tray-focused', { focused })
@@ -741,9 +759,10 @@ export default class Application extends EventEmitter {
       await this.stopAllSettled()
     })
 
-    this.updateManager.on('update-error', (event) => {
+    this.updateManager.on('update-error', (msg) => {
       this.menuManager.updateMenuItemEnabledState('app.check-for-updates', true)
       this.trayManager.updateMenuItemEnabledState('app.check-for-updates', true)
+      this.sendCommandToAll('application:update-error', msg)
     })
   }
 
@@ -819,7 +838,11 @@ export default class Application extends EventEmitter {
     })
 
     this.on('application:check-for-updates', () => {
-      this.updateManager.check()
+      if (this.updateManager && this.updateManager.updateFailed) {
+        this.openExternal('https://github.com/agalwood/Motrix/releases')
+      } else if (this.updateManager) {
+        this.updateManager.check()
+      }
     })
 
     this.on('application:change-theme', (theme) => {

@@ -6,6 +6,7 @@ import is from 'electron-is'
 
 import pageConfig from '../configs/page'
 import logger from '../core/Logger'
+import { APP_RUN_MODE } from '@shared/constants'
 
 const baseBrowserOptions = {
   titleBarStyle: 'hiddenInset',
@@ -217,6 +218,29 @@ export default class WindowManager extends EventEmitter {
     window.on('close', (event) => {
       if (pageOptions.bindCloseToHide && !this.willQuit) {
         event.preventDefault()
+
+        const runMode = this.userConfig['run-mode']
+        const trayAvailable = global.application && global.application.trayAvailable
+        if (runMode === APP_RUN_MODE.TRAY && !trayAvailable) {
+          const { dialog } = require('electron')
+          const choice = dialog.showMessageBoxSync(window, {
+            type: 'question',
+            buttons: ['Quit', 'Cancel'],
+            defaultId: 0,
+            cancelId: 1,
+            title: 'Confirm Quit',
+            message: 'Tray is not available. Do you want to quit the app?'
+          })
+          if (choice === 0) {
+            this.setWillQuit(true)
+            if (global.application) {
+              global.application.quit()
+            } else {
+              app.quit()
+            }
+          }
+          return
+        }
 
         // @see https://github.com/electron/electron/issues/20263
         if (window.isFullScreen()) {

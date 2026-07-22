@@ -199,3 +199,10 @@ commands.register('application:update-system-theme', updateSystemTheme)
 commands.register('application:update-theme', updateTheme)
 commands.register('application:update-locale', updateLocale)
 commands.register('application:update-tray-focused', updateTrayFocused)
+commands.register('application:update-error', (msg) => {
+  Message.error({
+    dangerouslyUseHTMLString: true,
+    message: msg,
+    duration: 10000
+  })
+})

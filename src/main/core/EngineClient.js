@@ -1,5 +1,6 @@
 'use strict'
 
+import { EventEmitter } from 'node:events'
 import { Aria2 } from '@shared/aria2'
 
 import logger from './Logger'
@@ -19,15 +20,19 @@ const defaults = {
   secret: EMPTY_STRING
 }
 
-export default class EngineClient {
+export default class EngineClient extends EventEmitter {
   static instance = null
   static client = null
 
   constructor (options = {}) {
+    super()
     this.options = {
       ...defaults,
       ...options
     }
+
+    this.consecutiveFailures = 0
+    this.rpcTimeout = options.rpcTimeout || 10000 // 10 seconds
 
     this.init()
   }
@@ -47,9 +52,28 @@ export default class EngineClient {
   }
 
   async call (method, ...args) {
-    return this.client.call(method, ...args).catch((err) => {
-      logger.warn('[Motrix] call client fail:', err.message)
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('RPC Timeout')), this.rpcTimeout)
     })
+
+    try {
+      const result = await Promise.race([
+        this.client.call(method, ...args),
+        timeoutPromise
+      ])
+      this.consecutiveFailures = 0 // reset on success
+      return result
+    } catch (err) {
+      logger.warn('[Motrix] call client fail:', err.message)
+      this.consecutiveFailures++
+      
+      if (this.consecutiveFailures >= 3) {
+        logger.error('[Motrix] engine hung detected')
+        this.emit('engine-hung')
+        this.consecutiveFailures = 0 // reset to avoid multiple triggers
+      }
+      return undefined
+    }
   }
 
   async changeGlobalOption (options) {

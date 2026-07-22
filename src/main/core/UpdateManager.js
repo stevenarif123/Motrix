@@ -76,13 +76,25 @@ export default class UpdateManager extends EventEmitter {
 
     if (this.autoCheckData.checkEnable && !this.isChecking) {
       this.autoCheckData.userCheck = false
-      this.updater.checkForUpdates()
+      try {
+        this.updater.checkForUpdates().catch(err => {
+          this.updateError(null, err)
+        })
+      } catch (err) {
+        this.updateError(null, err)
+      }
     }
   }
 
   check () {
     this.autoCheckData.userCheck = true
-    this.updater.checkForUpdates()
+    try {
+      this.updater.checkForUpdates().catch(err => {
+        this.updateError(null, err)
+      })
+    } catch (err) {
+      this.updateError(null, err)
+    }
   }
 
   checkingForUpdate () {
@@ -152,12 +164,23 @@ export default class UpdateManager extends EventEmitter {
 
   updateError (event, error) {
     this.isChecking = false
-    this.emit('update-error', error)
-    const msg = (error == null)
+    this.updateFailed = true
+
+    let msg = (error == null)
       ? this.i18n.t('app.update-error-message')
       : (error.stack || error).toString()
+    
+    const errStr = msg.toLowerCase()
+    
+    if (errStr.includes('cert') || errStr.includes('certificate')) {
+      msg = 'Update check failed due to a certificate error. Please check for updates manually at <a href="https://github.com/agalwood/Motrix/releases" target="_blank">https://github.com/agalwood/Motrix/releases</a>'
+    } else if (errStr.includes('enotfound') || errStr.includes('econnrefused') || errStr.includes('err_name_not_resolved')) {
+      msg = 'Update check failed: no internet connection'
+    } else {
+      msg = 'Update check failed. Please check for updates manually at <a href="https://github.com/agalwood/Motrix/releases" target="_blank">https://github.com/agalwood/Motrix/releases</a><br/>' + msg
+    }
 
+    this.emit('update-error', msg)
     this.updater.logger.warn(`[Motrix] update-error: ${msg}`)
-    dialog.showErrorBox('Error', msg)
   }
 }

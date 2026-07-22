@@ -147,16 +147,28 @@ export default class TrayManager extends EventEmitter {
   }
 
   initTray () {
-    const { icon } = this.getIcons()
-    tray = new Tray(icon)
-    // tray.setPressedImage(inverseIcon)
+    try {
+      const { icon } = this.getIcons()
+      tray = new Tray(icon)
+      // tray.setPressedImage(inverseIcon)
 
-    if (!this.macOS) {
-      tray.setToolTip('Motrix')
+      if (!this.macOS) {
+        tray.setToolTip('Motrix')
+      }
+      this.trayAvailable = true
+    } catch (err) {
+      logger.error('[Motrix] initTray error: ', err.message)
+      this.trayAvailable = false
+      tray = null
     }
   }
 
+  isAvailable () {
+    return this.trayAvailable && !!tray && !tray.isDestroyed()
+  }
+
   bindEvents () {
+    if (!tray) return
     // All OS
     tray.on('click', this.handleTrayClick)
 
@@ -173,6 +185,7 @@ export default class TrayManager extends EventEmitter {
   }
 
   unbindEvents () {
+    if (!tray) return
     // All OS
     tray.removeListener('click', this.handleTrayClick)
 
