@@ -13,7 +13,7 @@ import { getLocaleManager } from '@/components/Locale'
 import Icon from '@/components/Icons/Icon'
 import Msg from '@/components/Msg'
 import { commands } from '@/components/CommandManager/instance'
-import TrayWorker from '@/workers/tray.worker'
+import TrayWorker from '@/workers/tray.worker.js?worker'
 
 import '@/components/Theme/Index.scss'
 

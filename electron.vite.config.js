@@ -5,6 +5,12 @@ import vue from '@vitejs/plugin-vue2'
 export default defineConfig({
   main: {
     plugins: [externalizeDepsPlugin()],
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, 'src/main'),
+        '@shared': resolve(__dirname, 'src/shared')
+      }
+    },
     build: {
       lib: {
         entry: resolve(__dirname, 'src/main/index.js')
@@ -13,6 +19,12 @@ export default defineConfig({
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, 'src/preload'),
+        '@shared': resolve(__dirname, 'src/shared')
+      }
+    },
     build: {
       lib: {
         entry: resolve(__dirname, 'src/preload/index.js')
@@ -21,13 +33,26 @@ export default defineConfig({
   },
   renderer: {
     root: resolve(__dirname, 'src/renderer'),
+    publicDir: resolve(__dirname, 'static'),
     build: {
       rollupOptions: {
         input: resolve(__dirname, 'src/renderer/index.html')
       }
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@import "${resolve(__dirname, 'src/renderer/components/Theme/Variables.scss').replace(/\\/g, '/')}";\n`
+        }
+      }
+    },
     resolve: {
       alias: {
+        'static': resolve(__dirname, 'static'),
+        '~normalize.css': resolve(__dirname, 'node_modules/normalize.css'),
+        '~element-ui': resolve(__dirname, 'node_modules/element-ui'),
+        '~@': resolve(__dirname, 'src/renderer'),
+        '~': resolve(__dirname, 'node_modules'),
         '@': resolve(__dirname, 'src/renderer'),
         '@shared': resolve(__dirname, 'src/shared'),
         'vue$': 'vue/dist/vue.esm.js'
