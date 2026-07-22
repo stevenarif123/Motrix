@@ -12,6 +12,6 @@ export default {
     },
     bindCloseToHide: true,
     openDevTools: is.dev(),
-    url: is.dev() ? 'http://localhost:9080' : require('path').join('file://', __dirname, '/index.html')
+    url: is.dev() ? (process.env.ELECTRON_RENDERER_URL || 'http://localhost:5173') : require('path').join('file://', __dirname, '../renderer/index.html')
   }
 }
