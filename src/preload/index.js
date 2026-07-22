@@ -1,5 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
+// Electron 28 compatibility shim for @electron/remote
+try {
+  const features = process.electronBinding('features')
+  if (features && typeof features.isDesktopCapturerEnabled !== 'function') {
+    features.isDesktopCapturerEnabled = () => true
+  }
+} catch (e) {}
+
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', {
