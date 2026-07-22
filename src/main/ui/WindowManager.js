@@ -97,6 +97,7 @@ export default class WindowManager extends EventEmitter {
       ...defaultBrowserOptions,
       ...pageOptions.attrs,
       webPreferences: {
+        preload: join(__dirname, '../preload/index.js'),
         enableRemoteModule: true,
         contextIsolation: false,
         nodeIntegration: true,
