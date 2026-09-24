@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --legacy-peer-deps
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build:app
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --legacy-peer-deps
+
+      # electron's own package.json has no postinstall script (unlike most
+      # native-binary packages), so npm never downloads its binary on
+      # install; it has to be fetched explicitly. The E2E tests launch this
+      # binary directly (fixtures.js does not use Playwright's own browsers).
+      - name: Download Electron binary
+        run: node node_modules/electron/install.js
+
+      - name: Build
+        run: npm run build:app
+
+      - name: Install Xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      - name: E2E tests
+        run: xvfb-run --auto-servernum npm run test:e2e
+
+      - name: Upload E2E artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: out/e2e-results
+          retention-days: 7

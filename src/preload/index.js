@@ -1,18 +1,63 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', {
-      ipcRenderer: {
-        send: (channel, ...args) => ipcRenderer.send(channel, ...args),
-        on: (channel, listener) => ipcRenderer.on(channel, listener),
-        once: (channel, listener) => ipcRenderer.once(channel, listener),
-        removeListener: (channel, listener) => ipcRenderer.removeListener(channel, listener)
-      }
-    })
-  } catch (error) {
-    console.error('Preload script error:', error)
+const SEND_CHANNELS = ['command', 'event']
+const RECEIVE_CHANNELS = ['command']
+const INVOKE_CHANNELS = [
+  'get-app-config',
+  'app:get-info',
+  'dialog:show-open-dialog',
+  'dialog:show-message-box',
+  'shell:show-item-in-folder',
+  'shell:open-path',
+  'shell:trash-task-files',
+  'clipboard:read-text',
+  'window:minimize',
+  'window:toggle-maximize',
+  'window:close',
+  'torrent:parse',
+  'history:list',
+  'history:remove',
+  'history:clear'
+]
+
+const assertChannel = (list, channel) => {
+  if (!list.includes(channel)) {
+    throw new Error(`[Motrix] IPC channel not allowed: ${channel}`)
   }
-} else {
-  window.electron = { ipcRenderer }
 }
+
+// Listeners are wrapped so the renderer never receives the raw IpcRendererEvent.
+const wrappedListeners = new Map()
+
+contextBridge.exposeInMainWorld('electron', {
+  platform: process.platform,
+  isMas: !!process.mas,
+  ipcRenderer: {
+    send (channel, ...args) {
+      assertChannel(SEND_CHANNELS, channel)
+      ipcRenderer.send(channel, ...args)
+    },
+    invoke (channel, ...args) {
+      assertChannel(INVOKE_CHANNELS, channel)
+      return ipcRenderer.invoke(channel, ...args)
+    },
+    on (channel, listener) {
+      assertChannel(RECEIVE_CHANNELS, channel)
+      const wrapped = (_event, ...args) => listener({}, ...args)
+      wrappedListeners.set(listener, wrapped)
+      ipcRenderer.on(channel, wrapped)
+    },
+    removeListener (channel, listener) {
+      assertChannel(RECEIVE_CHANNELS, channel)
+      const wrapped = wrappedListeners.get(listener)
+      if (wrapped) {
+        ipcRenderer.removeListener(channel, wrapped)
+        wrappedListeners.delete(listener)
+      }
+    },
+    removeAllListeners (channel) {
+      assertChannel(RECEIVE_CHANNELS, channel)
+      ipcRenderer.removeAllListeners(channel)
+    }
+  }
+})

@@ -15,11 +15,11 @@
 ## ✨ Key Improvements in This Fork
 
 * ⚡ **`electron-vite` Build Engine:** Replaced legacy Webpack builds with `electron-vite` & Vite. Development HMR is near-instant (< 100ms) and production builds take less than 4 seconds.
-* 🛡️ **Crash-Proof Persistence & History Protection:**
-  * Enabled `aria2` session auto-saving every 30 seconds (`--save-session-interval=30`).
-  * Implemented `TaskManager` with **atomic writes** (`write-file-atomic`) and **automatic backup recovery** (`download-history.json.bak`). History is never lost or corrupted on abrupt system power loss/crash.
-* 🔒 **Modern IPC Security:** Preload script isolation via Electron `contextBridge`.
-* 📁 **Smart Folder & Categorization:** *(In Progress)* Automatic sorting of downloads into Videos, Music, Documents, and Archives.
+* 🛡️ **Session Persistence:** `aria2` saves the download session every 10 seconds (`save-session-interval` in `aria2.conf`).
+* 🔒 **Locked-Down Engine RPC:** The aria2 RPC listens on localhost only and every install gets a random `rpc-secret`, so other devices and web pages cannot control the engine.
+* 📁 **Smart Folder & Categorization:** HTTP/FTP downloads are sorted into `Videos`, `Audio`, `Documents`, `Archives` and `Applications` subfolders based on each file's extension.
+* 🧱 **Isolated Renderer:** The UI runs sandboxed with `contextIsolation` and no Node.js access. It talks to the main process only through an allowlisted `contextBridge` preload (`src/preload`), and a Content-Security-Policy restricts what the page can load.
+* 🚧 **Planned:** download history with atomic writes (`src/main/core/TaskManager.js`, not wired up yet).
 
 ---
 
@@ -37,7 +37,7 @@
 
 ### Prerequisites
 
-- **Node.js**: `>=16.0.0`
+- **Node.js**: `^20.19.0` or `>=22.12.0`
 - **npm**: `>=8.0.0`
 
 ### Setup
@@ -52,6 +52,14 @@ npm install --legacy-peer-deps
 
 # Start development server with instant HMR
 npm run dev
+
+# Lint and run unit tests (the same checks CI runs)
+npm run lint
+npm test
+
+# Build, then run end-to-end tests against the built app (needs a display; use xvfb-run on Linux CI)
+npm run build:app
+npm run test:e2e
 
 # Build production bundle for desktop
 npm run build

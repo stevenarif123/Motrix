@@ -53,7 +53,10 @@ export const fetchBtTrackerFromSource = async (source, proxyConfig = {}) => {
   })
 
   const results = await Promise.allSettled(promises)
-  const values = results.map((item) => item.value)
+  const values = results
+    .filter((item) => item.status === 'fulfilled' && typeof item.value === 'string')
+    .map((item) => item.value.trim())
+    .filter(Boolean)
   const result = [...new Set(values)]
   return result
 }

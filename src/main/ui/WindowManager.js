@@ -1,11 +1,12 @@
 import { join } from 'node:path'
 import { EventEmitter } from 'node:events'
 import { debounce } from 'lodash'
-import { app, shell, screen, BrowserWindow } from 'electron'
+import { app, screen, BrowserWindow } from 'electron'
 import is from 'electron-is'
 
 import pageConfig from '../configs/page'
 import logger from '../core/Logger'
+import { openExternalSafely } from '../utils'
 
 const baseBrowserOptions = {
   titleBarStyle: 'hiddenInset',
@@ -14,7 +15,10 @@ const baseBrowserOptions = {
   height: 768,
   backgroundColor: '#fff',
   webPreferences: {
-    nodeIntegration: true
+    preload: join(__dirname, '../preload/index.js'),
+    contextIsolation: true,
+    sandbox: true,
+    nodeIntegration: false
   }
 }
 
@@ -22,7 +26,7 @@ const baseBrowserOptions = {
 const defaultBrowserOptions = is.macOS()
   ? {
     ...baseBrowserOptions,
-    vibrancy: 'ultra-dark',
+    vibrancy: 'under-window',
     visualEffectState: 'active',
     backgroundColor: '#00000000'
   }
@@ -49,7 +53,8 @@ export default class WindowManager extends EventEmitter {
   }
 
   getPageOptions (page) {
-    const result = pageConfig[page] || {}
+    const config = pageConfig[page] || {}
+    const result = { ...config, attrs: { ...config.attrs } }
     const hideAppMenu = this.userConfig['hide-app-menu']
     if (hideAppMenu) {
       result.attrs.frame = false
@@ -95,13 +100,7 @@ export default class WindowManager extends EventEmitter {
 
     window = new BrowserWindow({
       ...defaultBrowserOptions,
-      ...pageOptions.attrs,
-      webPreferences: {
-        enableRemoteModule: true,
-        contextIsolation: false,
-        nodeIntegration: true,
-        nodeIntegrationInWorker: true
-      }
+      ...pageOptions.attrs
     })
 
     const bounds = this.getPageBounds(page)
@@ -114,8 +113,15 @@ export default class WindowManager extends EventEmitter {
     }
 
     window.webContents.setWindowOpenHandler(({ url }) => {
-      shell.openExternal(url)
+      openExternalSafely(url)
       return { action: 'deny' }
+    })
+
+    window.webContents.on('will-navigate', (event, url) => {
+      if (url !== window.webContents.getURL()) {
+        event.preventDefault()
+        openExternalSafely(url)
+      }
     })
 
     if (pageOptions.url) {
@@ -173,9 +179,9 @@ export default class WindowManager extends EventEmitter {
     }
 
     this.removeWindow(page)
-    win.removeListener('closed')
-    win.removeListener('move')
-    win.removeListener('resize')
+    win.removeAllListeners('closed')
+    win.removeAllListeners('move')
+    win.removeAllListeners('resize')
     win.destroy()
   }
 

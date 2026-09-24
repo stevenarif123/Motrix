@@ -1,5 +1,5 @@
+import '@/utils/polyfills'
 import is from 'electron-is'
-import { ipcRenderer } from 'electron'
 import Vue from 'vue'
 import VueI18Next from '@panter/vue-i18next'
 import { sync } from 'vuex-router-sync'
@@ -13,7 +13,9 @@ import { getLocaleManager } from '@/components/Locale'
 import Icon from '@/components/Icons/Icon'
 import Msg from '@/components/Msg'
 import { commands } from '@/components/CommandManager/instance'
+import electron, { ipcRenderer } from '@/utils/electron'
 import TrayWorker from '@/workers/tray.worker.js?worker'
+import './commands'
 
 import '@/components/Theme/Index.scss'
 
@@ -53,7 +55,7 @@ function initTrayWorker () {
 
 function init (config) {
   if (is.renderer()) {
-    Vue.use(require('vue-electron'))
+    Vue.prototype.$electron = electron
   }
 
   Vue.http = Vue.prototype.$http = axios
@@ -83,15 +85,13 @@ function init (config) {
 
   /* eslint-disable no-new */
   global.app = new Vue({
-    components: { App },
     router,
     store,
     i18n,
-    template: '<App/>'
+    render: h => h(App)
   }).$mount('#app')
 
   global.app.commands = commands
-  require('./commands')
 
   global.app.trayWorker = initTrayWorker()
 

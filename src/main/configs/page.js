@@ -1,3 +1,5 @@
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import is from 'electron-is'
 
 export default {
@@ -12,6 +14,7 @@ export default {
     },
     bindCloseToHide: true,
     openDevTools: is.dev(),
-    url: is.dev() ? 'http://localhost:9080' : require('path').join('file://', __dirname, '/index.html')
+    url: process.env.ELECTRON_RENDERER_URL ||
+      pathToFileURL(join(__dirname, '../renderer/index.html')).href
   }
 }

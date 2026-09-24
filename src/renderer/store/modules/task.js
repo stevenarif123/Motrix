@@ -121,8 +121,8 @@ const actions = {
     commit('UPDATE_CURRENT_TASK_GID', gid)
   },
   addUri ({ dispatch }, data) {
-    const { uris, outs, options } = data
-    return api.addUri({ uris, outs, options })
+    const { uris, outs, dirs, options } = data
+    return api.addUri({ uris, outs, dirs, options })
       .then(() => {
         dispatch('fetchList')
         dispatch('app/updateAddTaskOptions', {}, { root: true })

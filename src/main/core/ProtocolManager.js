@@ -2,10 +2,13 @@ import { EventEmitter } from 'node:events'
 import { app } from 'electron'
 import is from 'electron-is'
 import { parse } from 'querystring'
+import { basename } from 'node:path'
 
 import logger from './Logger'
 import protocolMap from '../configs/protocol'
 import { ADD_TASK_TYPE } from '@shared/constants'
+
+const NEW_TASK_ALLOWED_ARGS = ['uri', 'out', 'referer', 'userAgent', 'cookie']
 
 export default class ProtocolManager extends EventEmitter {
   constructor (options = {}) {
@@ -89,6 +92,25 @@ export default class ProtocolManager extends EventEmitter {
 
     const query = search.startsWith('?') ? search.replace('?', '') : search
     const args = parse(query)
-    global.application.sendCommandToAll(command, args)
+    global.application.sendCommandToAll(command, this.sanitizeArgs(host, args))
+  }
+
+  // mo:// links can be opened by any web page, so they must not pick the save
+  // location, the proxy or skip the confirmation dialog.
+  sanitizeArgs (host, args) {
+    if (host !== 'new-task') {
+      return args
+    }
+
+    const result = {}
+    NEW_TASK_ALLOWED_ARGS.forEach((key) => {
+      if (typeof args[key] === 'string') {
+        result[key] = args[key]
+      }
+    })
+    if (result.out) {
+      result.out = basename(result.out.replace(/\\/g, '/'))
+    }
+    return result
   }
 }

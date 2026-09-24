@@ -11,19 +11,6 @@ export default defineConfig({
       externalizeDepsPlugin()
     ],
     build: {
-      rollupOptions: {
-        external: [
-          'electron',
-          'write-file-atomic',
-          'ws',
-          'electron-store',
-          'electron-log',
-          'electron-is',
-          'electron-updater',
-          '@motrix/nat-api',
-          '@motrix/multispinner'
-        ]
-      },
       lib: {
         entry: resolve(__dirname, 'src/main/index.js')
       }
@@ -57,6 +44,9 @@ export default defineConfig({
         input: resolve(__dirname, 'src/renderer/index.html')
       }
     },
+    define: {
+      global: 'globalThis'
+    },
     css: {
       preprocessorOptions: {
         scss: {
@@ -73,7 +63,8 @@ export default defineConfig({
         '~': resolve(__dirname, 'node_modules'),
         '@': resolve(__dirname, 'src/renderer'),
         '@shared': resolve(__dirname, 'src/shared'),
-        'vue$': 'vue/dist/vue.esm.js'
+        'node:events': 'events',
+        'electron-is': resolve(__dirname, 'src/renderer/utils/is.js')
       },
       extensions: ['.js', '.vue', '.json', '.scss']
     },

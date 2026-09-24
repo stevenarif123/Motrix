@@ -2,6 +2,10 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:* ws://localhost:* https:; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'"
+    >
     <title>Motrix</title>
     <style>
       .skeleton-aside {

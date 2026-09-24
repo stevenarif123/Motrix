@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron'
+import { ipcRenderer } from '@/utils/electron'
 import is from 'electron-is'
 import { isEmpty, clone } from 'lodash'
 import { Aria2 } from '@shared/aria2'
@@ -171,12 +171,16 @@ export default class Api {
     const {
       uris,
       outs,
+      dirs,
       options
     } = params
     const tasks = uris.map((uri, index) => {
       const engineOptions = formatOptionsForEngine(options)
       if (outs && outs[index]) {
         engineOptions.out = outs[index]
+      }
+      if (dirs && dirs[index]) {
+        engineOptions.dir = dirs[index]
       }
       const args = compactUndefined([[uri], engineOptions])
       return ['aria2.addUri', ...args]

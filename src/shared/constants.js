@@ -1,5 +1,7 @@
 export const EMPTY_STRING = ''
-export const PORTABLE_EXECUTABLE_DIR = process.env.PORTABLE_EXECUTABLE_DIR
+export const PORTABLE_EXECUTABLE_DIR = typeof process === 'undefined'
+  ? undefined
+  : process.env.PORTABLE_EXECUTABLE_DIR
 export const IS_PORTABLE = PORTABLE_EXECUTABLE_DIR && PORTABLE_EXECUTABLE_DIR !== EMPTY_STRING
 
 export const APP_THEME = {
