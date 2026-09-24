@@ -53,6 +53,10 @@ npm install --legacy-peer-deps
 # Start development server with instant HMR
 npm run dev
 
+# Lint and run unit tests (the same checks CI runs)
+npm run lint
+npm test
+
 # Build production bundle for desktop
 npm run build
 ```
