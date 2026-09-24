@@ -26,7 +26,7 @@ const baseBrowserOptions = {
 const defaultBrowserOptions = is.macOS()
   ? {
     ...baseBrowserOptions,
-    vibrancy: 'ultra-dark',
+    vibrancy: 'under-window',
     visualEffectState: 'active',
     backgroundColor: '#00000000'
   }
