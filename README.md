@@ -57,6 +57,10 @@ npm run dev
 npm run lint
 npm test
 
+# Build, then run end-to-end tests against the built app (needs a display; use xvfb-run on Linux CI)
+npm run build:app
+npm run test:e2e
+
 # Build production bundle for desktop
 npm run build
 ```

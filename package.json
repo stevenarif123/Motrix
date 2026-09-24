@@ -23,9 +23,10 @@
     "preview": "electron-vite preview",
     "release": "electron-vite build && electron-builder --publish onTagOrDraft",
     "test": "vitest run",
-    "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src test",
-    "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src test",
-    "postinstall": "electron-builder install-app-deps"
+    "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src test e2e",
+    "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src test e2e",
+    "postinstall": "electron-builder install-app-deps",
+    "test:e2e": "playwright test -c e2e/playwright.config.js"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
@@ -47,6 +48,7 @@
     "@electron/notarize": "^1.2.3",
     "@electron/osx-sign": "^1.0.4",
     "@panter/vue-i18next": "^0.15.2",
+    "@playwright/test": "^1.63.0",
     "@vitejs/plugin-vue2": "^2.3.4",
     "@vue/eslint-config-standard": "^6.1.0",
     "axios": "^1.4.0",

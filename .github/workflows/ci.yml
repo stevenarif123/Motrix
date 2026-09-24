@@ -27,3 +27,35 @@ jobs:
 
       - name: Build
         run: npm run build:app
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Not --ignore-scripts: this downloads the Electron binary the E2E
+      # tests launch directly (fixtures.js does not use Playwright's browsers).
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build
+        run: npm run build:app
+
+      - name: Install Xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      - name: E2E tests
+        run: xvfb-run --auto-servernum npm run test:e2e
+
+      - name: Upload E2E artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: out/e2e-results
+          retention-days: 7
