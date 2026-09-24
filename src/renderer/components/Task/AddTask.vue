@@ -271,8 +271,8 @@
       }
     },
     methods: {
-      autofillResourceLink () {
-        const content = this.$electron.clipboard.readText()
+      async autofillResourceLink () {
+        const content = await this.$electron.clipboard.readText()
         const hasResource = detectResource(content)
         if (!hasResource) {
           return

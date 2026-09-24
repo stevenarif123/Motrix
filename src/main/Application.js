@@ -35,6 +35,7 @@ import TouchBarManager from './ui/TouchBarManager'
 import TrayManager from './ui/TrayManager'
 import DockManager from './ui/DockManager'
 import ThemeManager from './ui/ThemeManager'
+import { setupRendererBridge } from './core/RendererBridge'
 
 export default class Application extends EventEmitter {
   constructor () {
@@ -1005,6 +1006,8 @@ export default class Application extends EventEmitter {
   }
 
   handleIpcInvokes () {
+    setupRendererBridge()
+
     ipcMain.handle('get-app-config', async () => {
       const systemConfig = this.configManager.getSystemConfig()
       const userConfig = this.configManager.getUserConfig()

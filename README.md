@@ -18,7 +18,8 @@
 * 🛡️ **Session Persistence:** `aria2` saves the download session every 10 seconds (`save-session-interval` in `aria2.conf`).
 * 🔒 **Locked-Down Engine RPC:** The aria2 RPC listens on localhost only and every install gets a random `rpc-secret`, so other devices and web pages cannot control the engine.
 * 📁 **Smart Folder & Categorization:** HTTP/FTP downloads are sorted into `Videos`, `Audio`, `Documents`, `Archives` and `Applications` subfolders based on each file's extension.
-* 🚧 **Planned:** download history with atomic writes (`src/main/core/TaskManager.js`, not wired up yet) and `contextBridge` preload isolation (the renderer still runs with `nodeIntegration`).
+* 🧱 **Isolated Renderer:** The UI runs sandboxed with `contextIsolation` and no Node.js access. It talks to the main process only through an allowlisted `contextBridge` preload (`src/preload`), and a Content-Security-Policy restricts what the page can load.
+* 🚧 **Planned:** download history with atomic writes (`src/main/core/TaskManager.js`, not wired up yet).
 
 ---
 

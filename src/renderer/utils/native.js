@@ -1,6 +1,3 @@
-import { access, constants } from 'node:fs'
-import { isAbsolute, relative, resolve } from 'node:path'
-import { shell, nativeTheme } from '@electron/remote'
 import { Message } from 'element-ui'
 
 import {
@@ -8,22 +5,19 @@ import {
   isMagnetTask
 } from '@shared/utils'
 import { APP_THEME, TASK_STATUS } from '@shared/constants'
+import { shell } from '@/utils/electron'
 
-export const showItemInFolder = (fullPath, { errorMsg }) => {
+const joinPath = (dir, name) => `${dir.replace(/[\\/]+$/, '')}/${name}`
+
+export const showItemInFolder = async (fullPath, { errorMsg }) => {
   if (!fullPath) {
     return
   }
 
-  fullPath = resolve(fullPath)
-  access(fullPath, constants.F_OK, (err) => {
-    console.warn(`[Motrix] ${fullPath} ${err ? 'does not exist' : 'exists'}`)
-    if (err && errorMsg) {
-      Message.error(errorMsg)
-      return
-    }
-
-    shell.showItemInFolder(fullPath)
-  })
+  const exists = await shell.showItemInFolder(fullPath)
+  if (!exists && errorMsg) {
+    Message.error(errorMsg)
+  }
 }
 
 export const openItem = async (fullPath) => {
@@ -31,43 +25,37 @@ export const openItem = async (fullPath) => {
     return
   }
 
-  const result = await shell.openPath(fullPath)
-  return result
+  return shell.openPath(fullPath)
 }
 
 export const getTaskFullPath = (task) => {
   const { dir, files, bittorrent } = task
-  let result = resolve(dir)
 
   // Magnet link task
   if (isMagnetTask(task)) {
-    return result
+    return dir
   }
 
   if (bittorrent && bittorrent.info && bittorrent.info.name) {
-    result = resolve(result, bittorrent.info.name)
-    return result
+    return joinPath(dir, bittorrent.info.name)
   }
 
   const [file] = files
-  const path = file.path ? resolve(file.path) : ''
-  let fileName = ''
+  if (file && file.path) {
+    return file.path
+  }
 
-  if (path) {
-    result = path
-  } else {
-    if (files && files.length === 1) {
-      fileName = getFileNameFromFile(file)
-      if (fileName) {
-        result = resolve(result, fileName)
-      }
+  if (files && files.length === 1) {
+    const fileName = getFileNameFromFile(file)
+    if (fileName) {
+      return joinPath(dir, fileName)
     }
   }
 
-  return result
+  return dir
 }
 
-export const moveTaskFilesToTrash = (task) => {
+export const moveTaskFilesToTrash = async (task) => {
   /**
    * For magnet link tasks, there is bittorrent, but there is no bittorrent.info.
    * The path is not a complete path before it becomes a BT task.
@@ -80,49 +68,31 @@ export const moveTaskFilesToTrash = (task) => {
 
   const { dir, status } = task
   const path = getTaskFullPath(task)
-  const relativePath = path ? relative(resolve(dir), path) : ''
-  if (!relativePath || relativePath.startsWith('..') || isAbsolute(relativePath)) {
+
+  try {
+    return await shell.trashTaskFiles({
+      dir,
+      path,
+      // There is no control file for a completed task.
+      withControlFile: status !== TASK_STATUS.COMPLETE
+    })
+  } catch (err) {
     throw new Error('task.file-path-error')
   }
-
-  let deleteResult1 = true
-  access(path, constants.F_OK, async (err) => {
-    console.log(`[Motrix] ${path} ${err ? 'does not exist' : 'exists'}`)
-    if (!err) {
-      deleteResult1 = await shell.trashItem(path)
-    }
-  })
-
-  // There is no configuration file for the completed task.
-  if (status === TASK_STATUS.COMPLETE) {
-    return deleteResult1
-  }
-
-  let deleteResult2 = true
-  const extraFilePath = `${path}.aria2`
-  access(extraFilePath, constants.F_OK, async (err) => {
-    console.log(`[Motrix] ${extraFilePath} ${err ? 'does not exist' : 'exists'}`)
-    if (!err) {
-      deleteResult2 = await shell.trashItem(extraFilePath)
-    }
-  })
-
-  return deleteResult1 && deleteResult2
 }
 
 export const getSystemTheme = () => {
-  return nativeTheme.shouldUseDarkColors ? APP_THEME.DARK : APP_THEME.LIGHT
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? APP_THEME.DARK
+    : APP_THEME.LIGHT
 }
 
 export const delayDeleteTaskFiles = (task, delay) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      try {
-        const result = moveTaskFilesToTrash(task)
-        resolve(result)
-      } catch (err) {
-        reject(err.message)
-      }
+      moveTaskFilesToTrash(task)
+        .then(resolve)
+        .catch((err) => reject(err.message))
     }, delay)
   })
 }

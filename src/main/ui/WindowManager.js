@@ -15,7 +15,10 @@ const baseBrowserOptions = {
   height: 768,
   backgroundColor: '#fff',
   webPreferences: {
-    nodeIntegration: true
+    preload: join(__dirname, '../preload/index.js'),
+    contextIsolation: true,
+    sandbox: true,
+    nodeIntegration: false
   }
 }
 
@@ -97,13 +100,7 @@ export default class WindowManager extends EventEmitter {
 
     window = new BrowserWindow({
       ...defaultBrowserOptions,
-      ...pageOptions.attrs,
-      webPreferences: {
-        enableRemoteModule: true,
-        contextIsolation: false,
-        nodeIntegration: true,
-        nodeIntegrationInWorker: true
-      }
+      ...pageOptions.attrs
     })
 
     const bounds = this.getPageBounds(page)

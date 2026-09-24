@@ -295,7 +295,7 @@
 
 <script>
   import is from 'electron-is'
-  import { dialog } from '@electron/remote'
+  import { dialog } from '@/utils/electron'
   import { mapState } from 'vuex'
   import { cloneDeep, extend, isEmpty } from 'lodash'
   import SubnavSwitcher from '@/components/Subnav/SubnavSwitcher'

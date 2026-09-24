@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron'
+import { ipcRenderer } from '@/utils/electron'
 import is from 'electron-is'
 import { isEmpty, clone } from 'lodash'
 import { Aria2 } from '@shared/aria2'
