@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto'
 import { app } from 'electron'
 import is from 'electron-is'
 import Store from 'electron-store'
@@ -157,6 +158,11 @@ export default class ConfigManager {
     if (enable && server && scope.includes(PROXY_SCOPES.DOWNLOAD)) {
       this.setSystemConfig('all-proxy', server)
       this.setSystemConfig('no-proxy', bypass)
+    }
+
+    // An RPC endpoint without a secret lets any local process or web page control the engine
+    if (!this.systemConfig.get('rpc-secret')) {
+      this.setSystemConfig('rpc-secret', randomBytes(16).toString('hex'))
     }
 
     // Fix spawn ENAMETOOLONG on Windows

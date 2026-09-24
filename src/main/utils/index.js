@@ -211,3 +211,21 @@ export const showItemInFolder = (fullPath) => {
     shell.showItemInFolder(fullPath)
   })
 }
+
+const EXTERNAL_PROTOCOLS = ['http:', 'https:', 'mailto:']
+
+export const openExternalSafely = (url) => {
+  let protocol
+  try {
+    protocol = new URL(url).protocol
+  } catch (err) {
+    return
+  }
+
+  if (!EXTERNAL_PROTOCOLS.includes(protocol)) {
+    logger.warn(`[Motrix] blocked opening external url: ${url}`)
+    return
+  }
+
+  shell.openExternal(url)
+}

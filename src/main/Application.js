@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events'
 import { readFile, unlink } from 'node:fs'
 import { extname, basename } from 'node:path'
-import { app, shell, dialog, ipcMain } from 'electron'
+import { app, dialog, ipcMain } from 'electron'
 import is from 'electron-is'
 import { isEmpty, isEqual } from 'lodash'
 
@@ -17,7 +17,7 @@ import {
   fetchBtTrackerFromSource,
   reduceTrackerString
 } from '@shared/utils/tracker'
-import { showItemInFolder } from './utils'
+import { openExternalSafely, showItemInFolder } from './utils'
 import logger from './core/Logger'
 import Context from './core/Context'
 import ConfigManager from './core/ConfigManager'
@@ -910,11 +910,7 @@ export default class Application extends EventEmitter {
   }
 
   openExternal (url) {
-    if (!url) {
-      return
-    }
-
-    shell.openExternal(url)
+    openExternalSafely(url)
   }
 
   handleConfigChange (configName) {
