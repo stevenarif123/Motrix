@@ -11,7 +11,7 @@ import {
   AUTO_CHECK_UPDATE_INTERVAL,
   PROXY_SCOPES
 } from '@shared/constants'
-import { checkIsNeedRun } from '@shared/utils'
+import { checkIsNeedRun, getTaskName } from '@shared/utils'
 import {
   convertTrackerDataToComma,
   fetchBtTrackerFromSource,
@@ -36,6 +36,8 @@ import TrayManager from './ui/TrayManager'
 import DockManager from './ui/DockManager'
 import ThemeManager from './ui/ThemeManager'
 import { setupRendererBridge } from './core/RendererBridge'
+import HistoryManager from './core/HistoryManager'
+import { detectCategoryFromFileName } from '@shared/utils/category'
 
 export default class Application extends EventEmitter {
   constructor () {
@@ -48,6 +50,8 @@ export default class Application extends EventEmitter {
     this.initContext()
 
     this.initConfigManager()
+
+    this.initHistoryManager()
 
     this.setupLogger()
 
@@ -97,6 +101,33 @@ export default class Application extends EventEmitter {
   initConfigManager () {
     this.configListeners = {}
     this.configManager = new ConfigManager()
+  }
+
+  initHistoryManager () {
+    this.historyManager = new HistoryManager()
+  }
+
+  recordHistory (task, path, status) {
+    const { gid, dir, files, errorCode, totalLength } = task
+    const [file] = files || []
+    const resolvedPath = path || (file && file.path) || ''
+    const uri = (file && file.uris && file.uris[0] && file.uris[0].uri) || ''
+
+    this.historyManager.record({
+      id: gid,
+      name: getTaskName(task),
+      uri,
+      dir,
+      path: resolvedPath,
+      category: detectCategoryFromFileName(resolvedPath || uri),
+      totalLength: Number(totalLength) || 0,
+      status,
+      // aria2 does not report when a task started, so createdAt and
+      // finishedAt both record when the result was observed.
+      errorCode: status === 'error' ? (errorCode || null) : null,
+      createdAt: Date.now(),
+      finishedAt: Date.now()
+    })
   }
 
   offConfigListeners () {
@@ -579,6 +610,8 @@ export default class Application extends EventEmitter {
 
   stop () {
     try {
+      this.historyManager.flush()
+
       const promises = [
         this.stopEngine(),
         this.shutdownUPnPManager(),
@@ -953,12 +986,18 @@ export default class Application extends EventEmitter {
     })
 
     this.on('task-download-complete', (task, path) => {
+      this.recordHistory(task, path, 'complete')
+
       this.dockManager.openDock(path)
 
       if (is.linux()) {
         return
       }
       app.addRecentDocument(path)
+    })
+
+    this.on('task-download-error', (task, path) => {
+      this.recordHistory(task, path, 'error')
     })
 
     if (this.configManager.userConfig.get('show-progress-bar')) {
@@ -1020,5 +1059,11 @@ export default class Application extends EventEmitter {
       }
       return result
     })
+
+    ipcMain.handle('history:list', async (_event, params) => this.historyManager.list(params))
+
+    ipcMain.handle('history:remove', async (_event, ids) => this.historyManager.remove(ids))
+
+    ipcMain.handle('history:clear', async () => this.historyManager.clear())
   }
 }

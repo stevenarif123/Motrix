@@ -3,6 +3,7 @@ import Router from 'vue-router'
 
 import Main from '@/components/Main'
 import TaskIndex from '@/components/Task/Index'
+import HistoryIndex from '@/components/History/Index'
 import PreferenceIndex from '@/components/Preference/Index'
 import PreferenceSubnav from '@/components/Subnav/PreferenceSubnav'
 import Basic from '@/components/Preference/Basic'
@@ -31,6 +32,11 @@ export default new Router({
           name: 'task',
           component: TaskIndex,
           props: true
+        },
+        {
+          path: '/history',
+          name: 'history',
+          component: HistoryIndex
         },
         {
           path: '/preference',

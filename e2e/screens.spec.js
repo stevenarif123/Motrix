@@ -7,6 +7,7 @@ const setTheme = (window, theme) =>
 
 const pages = [
   { name: 'tasks', go: async (window) => window.evaluate(() => { window.app.$router.push('/task/active').catch(() => {}); return 1 }) },
+  { name: 'history', go: async (window) => window.evaluate(() => { window.app.$router.push('/history').catch(() => {}); return 1 }) },
   {
     name: 'add-task',
     go: async (window) => {

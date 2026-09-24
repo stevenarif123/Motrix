@@ -30,6 +30,12 @@ export const getAppInfo = () => invoke('app:get-info')
 
 export const parseTorrent = (arrayBuffer) => invoke('torrent:parse', arrayBuffer)
 
+export const history = {
+  list: (params) => invoke('history:list', params),
+  remove: (ids) => invoke('history:remove', ids),
+  clear: () => invoke('history:clear')
+}
+
 export default {
   ipcRenderer,
   clipboard

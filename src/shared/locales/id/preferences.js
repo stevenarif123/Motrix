@@ -75,6 +75,8 @@ export default {
   'download-session-path': 'Lokasi Session Unduhan',
   'factory-reset': 'Reset Pabrik',
   'factory-reset-confirm': 'Anda yakin ingin kembali ke pengaturan pabrik?',
+  'clear-history': 'Hapus Riwayat',
+  'clear-history-confirm': 'Anda yakin ingin menghapus semua riwayat unduhan? File yang sudah diunduh tidak akan dihapus.',
   'lab-warning': 'Mengaktifkan fitur lab dapat menyebabkan aplikasi tidak berjalan semestinya atau kehilangan data, risiko ditanggung Anda sendiri!',
   'download-protocol': 'Protocols',
   'protocols-default-client': 'Tetapkan sebagai klien untuk Protocol berikut',

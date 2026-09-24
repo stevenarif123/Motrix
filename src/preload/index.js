@@ -14,7 +14,10 @@ const INVOKE_CHANNELS = [
   'window:minimize',
   'window:toggle-maximize',
   'window:close',
-  'torrent:parse'
+  'torrent:parse',
+  'history:list',
+  'history:remove',
+  'history:clear'
 ]
 
 const assertChannel = (list, channel) => {
