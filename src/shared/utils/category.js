@@ -15,12 +15,20 @@ const CATEGORY_FOLDERS = {
   other: 'Other'
 }
 
+function getNameFromResource (resource) {
+  let name = resource.split('?')[0].split('#')[0]
+  try {
+    name = new URL(resource).pathname
+  } catch (err) {
+    // Not a URL, treat it as a plain file name
+  }
+  return name.split(/[\\/]/).pop()
+}
+
 export function detectCategoryFromFileName (filename = '') {
   if (!filename) return 'other'
 
-  // Extract extension
-  const cleanName = filename.split('?')[0].split('#')[0]
-  const parts = cleanName.split('.')
+  const parts = getNameFromResource(filename).split('.')
   if (parts.length <= 1) return 'other'
 
   const ext = parts.pop().toLowerCase()
@@ -36,4 +44,12 @@ export function detectCategoryFromFileName (filename = '') {
 
 export function getCategoryFolderName (category = 'other') {
   return CATEGORY_FOLDERS[category] || CATEGORY_FOLDERS.other
+}
+
+export function buildCategoryDir (dir, resource) {
+  const category = detectCategoryFromFileName(resource)
+  if (!dir || category === 'other') return dir
+
+  const separator = dir.includes('\\') && !dir.includes('/') ? '\\' : '/'
+  return `${dir.replace(/[\\/]+$/, '')}${separator}${getCategoryFolderName(category)}`
 }

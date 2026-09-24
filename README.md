@@ -15,11 +15,10 @@
 ## ✨ Key Improvements in This Fork
 
 * ⚡ **`electron-vite` Build Engine:** Replaced legacy Webpack builds with `electron-vite` & Vite. Development HMR is near-instant (< 100ms) and production builds take less than 4 seconds.
-* 🛡️ **Crash-Proof Persistence & History Protection:**
-  * Enabled `aria2` session auto-saving every 30 seconds (`--save-session-interval=30`).
-  * Implemented `TaskManager` with **atomic writes** (`write-file-atomic`) and **automatic backup recovery** (`download-history.json.bak`). History is never lost or corrupted on abrupt system power loss/crash.
-* 🔒 **Modern IPC Security:** Preload script isolation via Electron `contextBridge`.
-* 📁 **Smart Folder & Categorization:** *(In Progress)* Automatic sorting of downloads into Videos, Music, Documents, and Archives.
+* 🛡️ **Session Persistence:** `aria2` saves the download session every 10 seconds (`save-session-interval` in `aria2.conf`).
+* 🔒 **Locked-Down Engine RPC:** The aria2 RPC listens on localhost only and every install gets a random `rpc-secret`, so other devices and web pages cannot control the engine.
+* 📁 **Smart Folder & Categorization:** HTTP/FTP downloads are sorted into `Videos`, `Audio`, `Documents`, `Archives` and `Applications` subfolders based on each file's extension.
+* 🚧 **Planned:** download history with atomic writes (`src/main/core/TaskManager.js`, not wired up yet) and `contextBridge` preload isolation (the renderer still runs with `nodeIntegration`).
 
 ---
 

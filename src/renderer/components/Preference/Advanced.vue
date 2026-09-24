@@ -610,10 +610,12 @@
         const { trackerSource } = this.form
         this.$store.dispatch('preference/fetchBtTracker', trackerSource)
           .then((data) => {
-            const tracker = convertTrackerDataToLine(data)
-            this.form.lastSyncTrackerTime = Date.now()
-            this.form.btTracker = tracker
             this.trackerSyncing = false
+            if (!data || data.length === 0) {
+              return
+            }
+            this.form.lastSyncTrackerTime = Date.now()
+            this.form.btTracker = convertTrackerDataToLine(data)
           })
           .catch((_) => {
             this.trackerSyncing = false

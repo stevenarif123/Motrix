@@ -7,6 +7,7 @@ import {
 } from '@shared/constants'
 import { splitTaskLinks } from '@shared/utils'
 import { buildOuts } from '@shared/utils/rename'
+import { buildCategoryDir } from '@shared/utils/category'
 
 import {
   buildUrisFromCurl,
@@ -68,16 +69,13 @@ export const buildHeader = (form) => {
   return result
 }
 
-import { detectCategoryFromFileName, getCategoryFolderName } from '@shared/utils/category'
-
 export const buildOption = (type, form) => {
-  let {
+  const {
     allProxy,
     dir,
     out,
     selectFile,
-    split,
-    uris
+    split
   } = form
   const result = {}
 
@@ -86,15 +84,7 @@ export const buildOption = (type, form) => {
   }
 
   if (!isEmpty(dir)) {
-    let targetDir = dir
-    if (uris && typeof uris === 'string') {
-      const category = detectCategoryFromFileName(uris)
-      if (category !== 'other') {
-        const subFolder = getCategoryFolderName(category)
-        targetDir = `${dir}/${subFolder}`.replace(/\\/g, '/')
-      }
-    }
-    result.dir = targetDir
+    result.dir = dir
   }
 
   if (!isEmpty(out)) {
@@ -136,9 +126,13 @@ export const buildUriPayload = (form) => {
   form = buildDefaultOptionsFromCurl(form, curlHeaders)
 
   const options = buildOption(ADD_TASK_TYPE.URI, form)
+  const dirs = options.dir
+    ? uris.map((uri, index) => buildCategoryDir(options.dir, outs[index] || uri))
+    : []
   const result = {
     uris,
     outs,
+    dirs,
     options
   }
   return result
