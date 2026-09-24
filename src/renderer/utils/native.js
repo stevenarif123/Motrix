@@ -1,5 +1,5 @@
 import { access, constants } from 'node:fs'
-import { resolve } from 'node:path'
+import { isAbsolute, relative, resolve } from 'node:path'
 import { shell, nativeTheme } from '@electron/remote'
 import { Message } from 'element-ui'
 
@@ -80,7 +80,8 @@ export const moveTaskFilesToTrash = (task) => {
 
   const { dir, status } = task
   const path = getTaskFullPath(task)
-  if (!path || dir === path) {
+  const relativePath = path ? relative(resolve(dir), path) : ''
+  if (!relativePath || relativePath.startsWith('..') || isAbsolute(relativePath)) {
     throw new Error('task.file-path-error')
   }
 
