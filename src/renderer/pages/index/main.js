@@ -5,6 +5,7 @@ import VueI18Next from '@panter/vue-i18next'
 import { sync } from 'vuex-router-sync'
 import Element, { Loading, Message } from 'element-ui'
 import axios from 'axios'
+import VueElectron from 'vue-electron'
 
 import App from './App'
 import router from '@/router'
@@ -14,6 +15,7 @@ import Icon from '@/components/Icons/Icon'
 import Msg from '@/components/Msg'
 import { commands } from '@/components/CommandManager/instance'
 import TrayWorker from '@/workers/tray.worker.js?worker'
+import './commands'
 
 import '@/components/Theme/Index.scss'
 
@@ -53,7 +55,7 @@ function initTrayWorker () {
 
 function init (config) {
   if (is.renderer()) {
-    Vue.use(require('vue-electron'))
+    Vue.use(VueElectron)
   }
 
   Vue.http = Vue.prototype.$http = axios
@@ -83,15 +85,13 @@ function init (config) {
 
   /* eslint-disable no-new */
   global.app = new Vue({
-    components: { App },
     router,
     store,
     i18n,
-    template: '<App/>'
+    render: h => h(App)
   }).$mount('#app')
 
   global.app.commands = commands
-  require('./commands')
 
   global.app.trayWorker = initTrayWorker()
 
