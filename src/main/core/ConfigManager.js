@@ -23,6 +23,7 @@ import {
 } from '@shared/constants'
 import { CHROME_UA } from '@shared/ua'
 import { separateConfig } from '@shared/utils'
+import { DEFAULT_CATEGORY_EXTENSIONS, DEFAULT_CATEGORY_FOLDERS } from '@shared/utils/category'
 import { reduceTrackerString } from '@shared/utils/tracker'
 
 export default class ConfigManager {
@@ -101,9 +102,12 @@ export default class ConfigManager {
       // },
       /* eslint-disable quote-props */
       defaults: {
+        'auto-categorize': true,
         'auto-check-update': is.macOS(),
         'auto-hide-window': false,
         'auto-sync-tracker': true,
+        'category-extensions': DEFAULT_CATEGORY_EXTENSIONS,
+        'category-folders': DEFAULT_CATEGORY_FOLDERS,
         'enable-upnp': true,
         'engine-max-connection-per-server': getMaxConnectionPerServer(),
         'favorite-directories': [],

@@ -19,6 +19,9 @@ export const initTaskForm = state => {
   const { addTaskUrl, addTaskOptions } = state.app
   const {
     allProxy,
+    autoCategorize,
+    categoryExtensions,
+    categoryFolders,
     dir,
     engineMaxConnectionPerServer,
     followMetalink,
@@ -29,6 +32,9 @@ export const initTaskForm = state => {
   } = state.preference.config
   const result = {
     allProxy,
+    autoCategorize,
+    categoryExtensions,
+    categoryFolders,
     cookie: '',
     dir,
     engineMaxConnectionPerServer,
@@ -126,8 +132,12 @@ export const buildUriPayload = (form) => {
   form = buildDefaultOptionsFromCurl(form, curlHeaders)
 
   const options = buildOption(ADD_TASK_TYPE.URI, form)
-  const dirs = options.dir
-    ? uris.map((uri, index) => buildCategoryDir(options.dir, outs[index] || uri))
+  const { autoCategorize, categoryExtensions, categoryFolders } = form
+  const dirs = options.dir && autoCategorize
+    ? uris.map((uri, index) => buildCategoryDir(options.dir, outs[index] || uri, {
+      extensions: categoryExtensions,
+      folders: categoryFolders
+    }))
     : []
   const result = {
     uris,
