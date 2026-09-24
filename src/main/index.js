@@ -10,7 +10,7 @@ global.__static = process.env.ELECTRON_RENDERER_URL
   : join(__dirname, '../renderer')
 
 // Must match appId in electron-builder.json for Windows notifications
-const appId = 'app.motrix.native'
+const appId = 'io.github.stevenarif123.motrix-modernized'
 if (is.windows()) {
   app.setAppUserModelId(appId)
 }
