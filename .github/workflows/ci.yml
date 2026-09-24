@@ -38,10 +38,15 @@ jobs:
           node-version: 22
           cache: npm
 
-      # Not --ignore-scripts: this downloads the Electron binary the E2E
-      # tests launch directly (fixtures.js does not use Playwright's browsers).
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci --ignore-scripts --legacy-peer-deps
+
+      # electron's own package.json has no postinstall script (unlike most
+      # native-binary packages), so npm never downloads its binary on
+      # install; it has to be fetched explicitly. The E2E tests launch this
+      # binary directly (fixtures.js does not use Playwright's own browsers).
+      - name: Download Electron binary
+        run: node node_modules/electron/install.js
 
       - name: Build
         run: npm run build:app
