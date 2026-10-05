@@ -1,27 +1,23 @@
+import { join } from 'node:path'
 import { app } from 'electron'
 import is from 'electron-is'
-import { initialize } from '@electron/remote/main'
 
 import Launcher from './Launcher'
+import { runMigration } from './core/Migration'
+import { getUserDataPath } from './utils/index'
 
-/**
- * initialize the main-process side of the remote module
- */
-initialize()
+// Vite copies static/ into the renderer output; the dev server serves it from the repo.
+global.__static = process.env.ELECTRON_RENDERER_URL
+  ? join(__dirname, '../../static')
+  : join(__dirname, '../renderer')
 
-process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
-
-global.__static = process.env.NODE_ENV === 'development'
-  ? require('path').resolve(process.cwd(), 'static').replace(/\\/g, '\\\\')
-  : require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
-
-/**
- * Fix Windows notification func
- * appId defined in .electron-vue/webpack.main.config.js
- */
-const appId = 'app.motrix.native'
+// Must match appId in electron-builder.json for Windows notifications
+const appId = 'io.github.stevenarif123.motrix-modernized'
 if (is.windows()) {
   app.setAppUserModelId(appId)
 }
+
+// Must run before ConfigManager (created inside Application, via Launcher) reads its stores.
+runMigration(getUserDataPath())
 
 global.launcher = new Launcher()

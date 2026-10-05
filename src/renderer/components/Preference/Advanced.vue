@@ -420,6 +420,9 @@
             <el-button plain type="danger" @click="() => onFactoryResetClick()">
               {{ $t('preferences.factory-reset') }}
             </el-button>
+            <el-button plain type="danger" @click="() => onClearHistoryClick()">
+              {{ $t('preferences.clear-history') }}
+            </el-button>
           </el-col>
         </el-form-item>
       </el-form>
@@ -442,7 +445,7 @@
 
 <script>
   import is from 'electron-is'
-  import { dialog } from '@electron/remote'
+  import { dialog, history as historyApi } from '@/utils/electron'
   import { mapState } from 'vuex'
   import { cloneDeep, extend, isEmpty } from 'lodash'
   import randomize from 'randomatic'
@@ -610,10 +613,12 @@
         const { trackerSource } = this.form
         this.$store.dispatch('preference/fetchBtTracker', trackerSource)
           .then((data) => {
-            const tracker = convertTrackerDataToLine(data)
-            this.form.lastSyncTrackerTime = Date.now()
-            this.form.btTracker = tracker
             this.trackerSyncing = false
+            if (!data || data.length === 0) {
+              return
+            }
+            this.form.lastSyncTrackerTime = Date.now()
+            this.form.btTracker = convertTrackerDataToLine(data)
           })
           .catch((_) => {
             this.trackerSyncing = false
@@ -711,6 +716,19 @@
         }).then(({ response }) => {
           if (response === 0) {
             this.$electron.ipcRenderer.send('command', 'application:factory-reset')
+          }
+        })
+      },
+      onClearHistoryClick () {
+        dialog.showMessageBox({
+          type: 'warning',
+          title: this.$t('preferences.clear-history'),
+          message: this.$t('preferences.clear-history-confirm'),
+          buttons: [this.$t('app.yes'), this.$t('app.no')],
+          cancelId: 1
+        }).then(({ response }) => {
+          if (response === 0) {
+            historyApi.clear()
           }
         })
       },

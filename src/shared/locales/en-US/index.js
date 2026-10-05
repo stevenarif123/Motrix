@@ -2,6 +2,7 @@ import about from './about'
 import app from './app'
 import edit from './edit'
 import help from './help'
+import history from './history'
 import menu from './menu'
 import preferences from './preferences'
 import subnav from './subnav'
@@ -13,6 +14,7 @@ export default {
   app,
   edit,
   help,
+  history,
   menu,
   preferences,
   subnav,

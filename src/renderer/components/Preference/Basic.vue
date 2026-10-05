@@ -126,6 +126,37 @@
           </div>
         </el-form-item>
         <el-form-item
+          :label="`${$t('preferences.category')}: `"
+          :label-width="formLabelWidth"
+        >
+          <el-col class="form-item-sub" :span="24">
+            <el-checkbox v-model="form.autoCategorize">
+              {{ $t('preferences.auto-categorize') }}
+            </el-checkbox>
+          </el-col>
+          <el-col class="form-item-sub category-settings" :span="24" v-if="form.autoCategorize">
+            <div class="category-row" v-for="key in categoryKeys" :key="key">
+              <span class="category-label">{{ $t(`history.category-${key}`) }}</span>
+              <el-input
+                class="category-folder-input"
+                size="mini"
+                v-model="form.categoryFolders[key]"
+                :placeholder="defaultCategoryFolders[key]"
+              />
+              <el-input
+                class="category-extensions-input"
+                size="mini"
+                :placeholder="$t('preferences.category-extensions-placeholder')"
+                v-model="categoryExtensionsText[key]"
+                @change="onExtensionsChange(key)"
+              />
+            </div>
+            <el-button size="mini" @click="onResetCategoryDefaults">
+              {{ $t('preferences.category-reset-defaults') }}
+            </el-button>
+          </el-col>
+        </el-form-item>
+        <el-form-item
           :label="`${$t('preferences.transfer-settings')}: `"
           :label-width="formLabelWidth"
         >
@@ -295,7 +326,7 @@
 
 <script>
   import is from 'electron-is'
-  import { dialog } from '@electron/remote'
+  import { dialog } from '@/utils/electron'
   import { mapState } from 'vuex'
   import { cloneDeep, extend, isEmpty } from 'lodash'
   import SubnavSwitcher from '@/components/Subnav/SubnavSwitcher'
@@ -312,6 +343,7 @@
     diffConfig,
     extractSpeedUnit
   } from '@shared/utils'
+  import { DEFAULT_CATEGORY_EXTENSIONS, DEFAULT_CATEGORY_FOLDERS } from '@shared/utils/category'
   import {
     APP_RUN_MODE,
     EMPTY_STRING,
@@ -320,11 +352,35 @@
   } from '@shared/constants'
   import { reduceTrackerString } from '@shared/utils/tracker'
 
+  const CATEGORY_KEYS = ['videos', 'audio', 'documents', 'archives', 'applications']
+
+  const buildExtensionsText = (categoryExtensions = {}) => {
+    const result = {}
+    CATEGORY_KEYS.forEach((key) => {
+      result[key] = (categoryExtensions[key] || []).join(', ')
+    })
+    return result
+  }
+
+  const parseExtensionsText = (text = '') => {
+    const seen = new Set()
+    text.split(',').forEach((item) => {
+      const ext = item.trim().toLowerCase().replace(/^\./, '')
+      if (ext) {
+        seen.add(ext)
+      }
+    })
+    return [...seen]
+  }
+
   const initForm = (config) => {
     const {
+      autoCategorize,
       autoHideWindow,
       btForceEncryption,
       btSaveMetadata,
+      categoryExtensions,
+      categoryFolders,
       dir,
       engineMaxConnectionPerServer,
       followMetalink,
@@ -356,10 +412,13 @@
       !pauseMetadata
 
     const result = {
+      autoCategorize,
       autoHideWindow,
       btAutoDownloadContent,
       btForceEncryption,
       btSaveMetadata,
+      categoryExtensions: cloneDeep(categoryExtensions),
+      categoryFolders: cloneDeep(categoryFolders),
       continue: config.continue,
       dir,
       engineMaxConnectionPerServer,
@@ -404,6 +463,9 @@
       form = initForm(extend(form, formOriginal, changedConfig.basic))
 
       return {
+        categoryExtensionsText: buildExtensionsText(form.categoryExtensions),
+        categoryKeys: CATEGORY_KEYS,
+        defaultCategoryFolders: DEFAULT_CATEGORY_FOLDERS,
         form,
         formLabelWidth: calcFormLabelWidth(locale),
         formOriginal,
@@ -562,7 +624,20 @@
           .then((config) => {
             this.form = initForm(config)
             this.formOriginal = cloneDeep(this.form)
+            this.categoryExtensionsText = buildExtensionsText(this.form.categoryExtensions)
           })
+      },
+      onExtensionsChange (key) {
+        this.form.categoryExtensions = {
+          ...this.form.categoryExtensions,
+          [key]: parseExtensionsText(this.categoryExtensionsText[key])
+        }
+        this.categoryExtensionsText[key] = this.form.categoryExtensions[key].join(', ')
+      },
+      onResetCategoryDefaults () {
+        this.form.categoryFolders = cloneDeep(DEFAULT_CATEGORY_FOLDERS)
+        this.form.categoryExtensions = cloneDeep(DEFAULT_CATEGORY_EXTENSIONS)
+        this.categoryExtensionsText = buildExtensionsText(this.form.categoryExtensions)
       },
       submitForm (formName) {
         this.$refs[formName].validate((valid) => {
@@ -654,3 +729,25 @@
     }
   }
 </script>
+
+<style lang="scss">
+.category-settings {
+  margin-top: 8px;
+}
+.category-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.category-label {
+  flex: 0 0 96px;
+  color: $--color-text-secondary;
+}
+.category-folder-input {
+  flex: 0 0 140px;
+}
+.category-extensions-input {
+  flex: 1;
+}
+</style>

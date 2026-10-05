@@ -112,6 +112,8 @@
             const taskName = getTaskName(task)
             const { errorCode, errorMessage } = task
             console.error(`[Motrix] download error gid: ${gid}, #${errorCode}, ${errorMessage}`)
+            const path = getTaskFullPath(task)
+            this.$electron.ipcRenderer.send('event', 'task-download-error', task, path)
             const message = this.$t('task.download-error-message', { taskName })
             const link = `<a target="_blank" href="https://github.com/agalwood/Motrix/wiki/Error#${errorCode}" rel="noopener noreferrer">${errorCode}</a>`
             this.$msg({

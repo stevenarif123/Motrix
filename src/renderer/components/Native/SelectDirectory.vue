@@ -8,7 +8,7 @@
 </template>
 
 <script>
-  import { dialog } from '@electron/remote'
+  import { dialog } from '@/utils/electron'
   import '@/components/Icons/folder'
 
   export default {

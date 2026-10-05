@@ -9,7 +9,8 @@ module.exports = {
     '@vue/standard'
   ],
   parserOptions: {
-    parser: 'babel-eslint'
+    parser: '@babel/eslint-parser',
+    requireConfigFile: false
   },
   globals: {
     appId: true,

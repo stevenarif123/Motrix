@@ -5,8 +5,8 @@ import _fetch from 'node-fetch'
 import _WebSocket from 'ws'
 import { JSONRPCError } from './JSONRPCError'
 
-const Deferred = require('./Deferred')
-const promiseEvent = require('./promiseEvent')
+import Deferred from './Deferred'
+import promiseEvent from './promiseEvent'
 
 const WebSocket = global.WebSocket || _WebSocket
 const fetch = global.fetch ? global.fetch.bind(global) : _fetch

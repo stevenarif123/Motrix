@@ -1,0 +1,21 @@
+export default {
+  'title': 'Riwayat',
+  'search-placeholder': 'Cari berdasarkan nama',
+  'all-categories': 'Semua kategori',
+  'all-status': 'Semua status',
+  'category-videos': 'Video',
+  'category-audio': 'Audio',
+  'category-documents': 'Dokumen',
+  'category-archives': 'Arsip',
+  'category-applications': 'Aplikasi',
+  'category-other': 'Lainnya',
+  'status-complete': 'Selesai',
+  'status-error': 'Gagal',
+  'no-history': 'Belum ada riwayat unduhan',
+  'load-more': 'Muat lebih banyak',
+  'open-folder': 'Buka folder',
+  'redownload': 'Unduh lagi',
+  'remove': 'Hapus',
+  'remove-confirm': 'Hapus "{{name}}" dari riwayat? File yang sudah diunduh tidak akan dihapus.',
+  'file-not-exist': 'File sudah tidak ada'
+}

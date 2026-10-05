@@ -1,0 +1,21 @@
+export default {
+  'title': 'History',
+  'search-placeholder': 'Search by name',
+  'all-categories': 'All categories',
+  'all-status': 'All status',
+  'category-videos': 'Videos',
+  'category-audio': 'Audio',
+  'category-documents': 'Documents',
+  'category-archives': 'Archives',
+  'category-applications': 'Applications',
+  'category-other': 'Other',
+  'status-complete': 'Complete',
+  'status-error': 'Error',
+  'no-history': 'No download history yet',
+  'load-more': 'Load more',
+  'open-folder': 'Open folder',
+  'redownload': 'Download again',
+  'remove': 'Remove',
+  'remove-confirm': 'Remove "{{name}}" from history? This does not delete the downloaded file.',
+  'file-not-exist': 'The file no longer exists'
+}

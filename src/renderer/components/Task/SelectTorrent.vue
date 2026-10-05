@@ -45,7 +45,7 @@
 
 <script>
   import { mapState } from 'vuex'
-  import { remote } from 'parse-torrent'
+  import { parseTorrent } from '@/utils/electron'
   import TaskFiles from '@/components/TaskDetail/TaskFiles'
   import '@/components/Icons/inbox'
   import {
@@ -103,18 +103,22 @@
           return
         }
 
-        remote(file.raw, { timeout: 60 * 1000 }, (err, parsedTorrent) => {
-          if (err) throw err
-          console.log('[Motrix] parsed torrent: ', parsedTorrent)
-          this.files = listTorrentFiles(parsedTorrent.files)
-          this.$refs.torrentFileList.toggleAllSelection()
+        file.raw.arrayBuffer()
+          .then((data) => parseTorrent(data))
+          .then((parsedTorrent) => {
+            this.files = listTorrentFiles(parsedTorrent.files)
+            this.$nextTick(() => this.$refs.torrentFileList.toggleAllSelection())
 
-          getAsBase64(file.raw, (torrent) => {
-            this.name = file.name
-            this.currentTorrent = torrent
-            this.$emit('change', torrent, SELECTED_ALL_FILES)
+            getAsBase64(file.raw, (torrent) => {
+              this.name = file.name
+              this.currentTorrent = torrent
+              this.$emit('change', torrent, SELECTED_ALL_FILES)
+            })
           })
-        })
+          .catch((err) => {
+            console.warn('[Motrix] parse torrent failed:', err.message)
+            this.$msg.error(this.$t('task.select-torrent'))
+          })
       }
     },
     methods: {

@@ -1,7 +1,10 @@
 const userKeys = [
+  'auto-categorize',
   'auto-check-update',
   'auto-hide-window',
   'auto-sync-tracker',
+  'category-extensions',
+  'category-folders',
   'cookie',
   'enable-upnp',
   'engine-bin-path',

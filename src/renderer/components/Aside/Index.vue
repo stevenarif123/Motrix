@@ -9,6 +9,9 @@
         <li @click="showAddTask()" class="non-draggable">
           <mo-icon name="menu-add" width="20" height="20" />
         </li>
+        <li @click="nav('/history')" class="non-draggable">
+          <mo-icon name="task-history" width="20" height="20" />
+        </li>
       </ul>
       <ul class="menu bottom-menu">
         <li @click="nav('/preference')" class="non-draggable">
@@ -29,6 +32,7 @@
   import LogoMini from '@/components/Logo/LogoMini'
   import '@/components/Icons/menu-task'
   import '@/components/Icons/menu-add'
+  import '@/components/Icons/task-history'
   import '@/components/Icons/menu-preference'
   import '@/components/Icons/menu-about'
 

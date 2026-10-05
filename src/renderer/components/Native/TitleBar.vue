@@ -16,7 +16,7 @@
 </template>
 
 <script>
-  import { getCurrentWindow } from '@electron/remote'
+  import { currentWindow } from '@/utils/electron'
   import '@/components/Icons/win-minimize'
   import '@/components/Icons/win-maximize'
   import '@/components/Icons/win-close'
@@ -28,24 +28,15 @@
         type: Boolean
       }
     },
-    computed: {
-      win () {
-        return getCurrentWindow()
-      }
-    },
     methods: {
       handleMinimize () {
-        this.win.minimize()
+        currentWindow.minimize()
       },
       handleMaximize () {
-        if (this.win.isMaximized()) {
-          this.win.unmaximize()
-        } else {
-          this.win.maximize()
-        }
+        currentWindow.toggleMaximize()
       },
       handleClose () {
-        this.win.close()
+        currentWindow.close()
       }
     }
   }

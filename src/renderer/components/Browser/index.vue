@@ -10,7 +10,6 @@
 
 <script>
   import is from 'electron-is'
-  import { webContents } from '@electron/remote'
   import { Loading } from 'element-ui'
 
   export default {
@@ -34,9 +33,8 @@
     mounted () {
       const { iframe } = this.$refs
 
-      iframe.addEventListener('did-start-loading', this.loadStart.bind(this))
-      iframe.addEventListener('did-stop-loading', this.loadStop.bind(this))
-      iframe.addEventListener('dom-ready', this.ready.bind(this))
+      this.loadStart()
+      iframe.addEventListener('load', this.loadStop.bind(this))
     },
     methods: {
       loadStart () {
@@ -47,16 +45,7 @@
       },
       loadStop () {
         this.$nextTick(() => {
-          this.loading.close()
-        })
-      },
-      ready () {
-        const { iframe } = this.$refs
-
-        const wc = webContents.fromId(iframe.getWebContentsId())
-        wc.setWindowOpenHandler((event, url) => {
-          event.preventDefault()
-          this.$electron.ipcRenderer.send('command', 'application:open-external', url)
+          this.loading && this.loading.close()
         })
       }
     }

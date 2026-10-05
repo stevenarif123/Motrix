@@ -9,7 +9,7 @@ import logger from './Logger'
 import { getI18n } from '../ui/Locale'
 
 if (is.dev()) {
-  autoUpdater.updateConfigPath = resolve(__dirname, '../../../app-update.yml')
+  autoUpdater.updateConfigPath = resolve(__dirname, '../../app-update.yml')
 }
 
 export default class UpdateManager extends EventEmitter {
@@ -90,7 +90,7 @@ export default class UpdateManager extends EventEmitter {
     this.emit('checking')
   }
 
-  updateAvailable (event, info) {
+  updateAvailable (info) {
     this.emit('update-available', info)
     dialog.showMessageBox({
       type: 'info',
@@ -107,7 +107,7 @@ export default class UpdateManager extends EventEmitter {
     })
   }
 
-  updateNotAvailable (event, info) {
+  updateNotAvailable (info) {
     this.isChecking = false
     this.emit('update-not-available', info)
     if (this.autoCheckData.userCheck) {
@@ -131,9 +131,9 @@ export default class UpdateManager extends EventEmitter {
     this.emit('download-progress', event)
   }
 
-  updateDownloaded (event, info) {
+  updateDownloaded (info) {
     this.emit('update-downloaded', info)
-    this.updater.logger.log(`Update Downloaded: ${info}`)
+    this.updater.logger.log(`Update Downloaded: ${info && info.version}`)
     dialog.showMessageBox({
       title: this.i18n.t('app.check-for-updates-title'),
       message: this.i18n.t('app.update-downloaded-message')
@@ -150,7 +150,7 @@ export default class UpdateManager extends EventEmitter {
     this.isChecking = false
   }
 
-  updateError (event, error) {
+  updateError (error) {
     this.isChecking = false
     this.emit('update-error', error)
     const msg = (error == null)

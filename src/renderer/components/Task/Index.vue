@@ -33,7 +33,7 @@
 </template>
 
 <script>
-  import { dialog } from '@electron/remote'
+  import { dialog } from '@/utils/electron'
   import { mapState } from 'vuex'
 
   import { commands } from '@/components/CommandManager/instance'
@@ -139,9 +139,9 @@
         this.$store.dispatch('app/updateAddTaskOptions', newOptions)
         this.$store.dispatch('app/showAddTaskDialog', ADD_TASK_TYPE.URI)
       },
-      deleteTaskFiles (task) {
+      async deleteTaskFiles (task) {
         try {
-          const result = moveTaskFilesToTrash(task)
+          const result = await moveTaskFilesToTrash(task)
 
           if (!result) {
             throw new Error('task.remove-task-file-fail')

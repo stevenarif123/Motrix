@@ -2,9 +2,7 @@ name: Build/release
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    tags: [ 'v*' ]
 
 jobs:
   release:
@@ -17,12 +15,12 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
 
       - name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@v2
@@ -39,7 +37,7 @@ jobs:
       - name: Build/release Electron app
         uses: motrixapp/action-electron-builder@v2
         with:
-          build_script_name: 'build:github'
+          build_script_name: 'build:app'
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
           github_token: ${{ secrets.github_token }}
